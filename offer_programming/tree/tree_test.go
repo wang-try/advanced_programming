@@ -53,3 +53,29 @@ func TestPostOrderTreeRec(t *testing.T) {
 	PostOrderTreeRec(root)
 	fmt.Println(PostOrderTreeIteration(root))
 }
+
+func TestConstructorBST(t *testing.T) {
+	root1 := &TreeNode{
+		Val: 7,
+		Left: &TreeNode{
+			Val:   3,
+			Left:  nil,
+			Right: nil,
+		},
+		Right: &TreeNode{
+			Val: 15,
+			Left: &TreeNode{
+				Val:   9,
+				Left:  nil,
+				Right: nil,
+			},
+			Right: &TreeNode{
+				Val:   20,
+				Left:  nil,
+				Right: nil,
+			},
+		},
+	}
+	c := ConstructorBST(root1)
+	fmt.Println(c.IteList)
+}
