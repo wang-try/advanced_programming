@@ -30,11 +30,11 @@ func insertSort(nums []int) {
 // 选择排序
 func selectSort(nums []int) {
 	for i := 0; i < len(nums); i++ {
-		min := nums[i]
+		minNum := nums[i]
 		flag := i
 		for j := i; j < len(nums); j++ {
-			if nums[j] < min {
-				min = nums[j]
+			if nums[j] < minNum {
+				minNum = nums[j]
 				flag = j
 			}
 		}
@@ -53,15 +53,15 @@ func quickSort(nums []int, start int, end int) {
 
 func partition(nums []int, start int, end int) int {
 	pivot := nums[end]
-	smallIndex := start - 1
+	smallIndex := start
 	for i := start; i < end; i++ {
 		if nums[i] < pivot {
-			smallIndex++
 			nums[i], nums[smallIndex] = nums[smallIndex], nums[i]
+			smallIndex++
 		}
 	}
-	nums[smallIndex+1], nums[end] = nums[end], nums[smallIndex+1]
-	return smallIndex + 1
+	nums[smallIndex], nums[end] = nums[end], nums[smallIndex]
+	return smallIndex
 
 }
 
@@ -144,7 +144,7 @@ func merge(nums []int, start int, mid int, end int) {
 		temp = append(temp, nums[j])
 		j++
 	}
-	for i, j := 0, start; j <= end; i, j = i+1, j+1 {
+	for i, j = 0, start; j <= end; i, j = i+1, j+1 {
 		nums[j] = temp[i]
 	}
 }
