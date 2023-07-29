@@ -98,21 +98,6 @@ func heapAdjust(nums []int, start int, len int) {
 	}
 }
 
-func heapAdjustV2(nums []int, start, len int) {
-	var child int
-	for ; 2*start < len; start = child {
-		child = 2*start + 1
-		if child < len-1 && nums[child+1] > nums[child] {
-			child++
-		}
-		if nums[start] < nums[child] {
-			nums[start], nums[child] = nums[child], nums[start]
-		} else {
-			break
-		}
-	}
-}
-
 // 归并排序
 func mergeSort(nums []int, start int, end int) {
 	if start < end {
