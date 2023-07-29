@@ -66,7 +66,7 @@ func partition(nums []int, start int, end int) int {
 }
 
 // 堆排序
-func heapSort(nums []int) {
+func HeapSort(nums []int) {
 	length := len(nums)
 	// 调整序列的前半部分元素，调整完之后第一个元素是序列的最大的元素
 	for i := length/2 - 1; i >= 0; i-- {
@@ -82,7 +82,7 @@ func heapSort(nums []int) {
 func heapAdjust(nums []int, start int, len int) {
 	var child int
 	//若子节点指标在范围内才做比较
-	for ; 2*start < len; start = child {
+	for ; 2*start+1 < len; start = child {
 		child = 2*start + 1
 		//先比较两个子节点大小，选择最大的
 		if child < len-1 && nums[child+1] > nums[child] {
