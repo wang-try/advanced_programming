@@ -69,30 +69,58 @@ func partition(nums []int, start int, end int) int {
 func HeapSort(nums []int) {
 	length := len(nums)
 	// 调整序列的前半部分元素，调整完之后第一个元素是序列的最大的元素
-	for i := length/2 - 1; i >= 0; i-- {
+	for i := (length - 2) / 2; i >= 0; i-- {
 		heapAdjust(nums, i, length)
 	}
 	for i := length - 1; i > 0; i-- {
 		// 将第1个元素与当前最后一个元素交换，保证当前的最后一个位置的元素都是现在的这个序列中最大的
 		nums[0], nums[i] = nums[i], nums[0]
-		heapAdjust(nums, 0, i-1)
+		heapAdjust(nums, 0, i)
 	}
 }
 
 func heapAdjust(nums []int, start int, len int) {
-	var child int
-	//若子节点指标在范围内才做比较
-	for ; 2*start+1 < len; start = child {
-		child = 2*start + 1
-		//先比较两个子节点大小，选择最大的
-		if child < len-1 && nums[child+1] > nums[child] {
+	father := start
+	child := 2*father + 1
+	for child < len {
+		if child+1 < len && nums[child+1] > nums[child] {
 			child++
 		}
-		//如果父亲节点小于子节点，则交换
-		if nums[start] < nums[child] {
-			nums[start], nums[child] = nums[child], nums[start]
+		if nums[father] < nums[child] {
+			nums[father], nums[child] = nums[child], nums[father]
+			father = child
+			child = 2*father + 1
 		} else {
-			//如果父节点大于子节点代表调整完毕，直接跳出函数
+			break
+		}
+	}
+}
+
+func HeapSortV2(arr []int) {
+	arrLen := len(arr)
+	for i := arrLen/2 - 1; i >= 0; i-- {
+		arrJustDown(arr, i, arrLen)
+	}
+	end := arrLen - 1
+	for end != 0 {
+		arr[0], arr[end] = arr[end], arr[0]
+		arrJustDown(arr, 0, end)
+		end--
+	}
+}
+
+func arrJustDown(arr []int, root, n int) {
+	parent := root
+	child := parent*2 + 1
+	for child < n {
+		if child+1 < n && arr[child+1] > arr[child] {
+			child++
+		}
+		if arr[child] > arr[parent] {
+			arr[child], arr[parent] = arr[parent], arr[child]
+			parent = child
+			child = parent*2 + 1
+		} else {
 			break
 		}
 	}
