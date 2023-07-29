@@ -188,3 +188,60 @@ func min(a, b int) int {
 	}
 	return b
 }
+
+//合并排序链表
+/*
+输入k个排序的链表，请将它们合并成一个排序的链表
+*/
+
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
+
+type listHeap []*ListNode
+
+func (h *listHeap) Less(i, j int) bool {
+	return (*h)[i].Val < (*h)[j].Val
+}
+
+func (h *listHeap) Swap(i, j int) {
+	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
+}
+
+func (h *listHeap) Len() int {
+	return len(*h)
+}
+
+func (h *listHeap) Pop() (v any) {
+	*h, v = (*h)[:h.Len()-1], (*h)[h.Len()-1]
+	return
+}
+
+func (h *listHeap) Push(v any) {
+	*h = append(*h, v.(*ListNode))
+}
+
+func mergeKLists(lists []*ListNode) *ListNode {
+	var lh listHeap
+	for _, list := range lists {
+		if list != nil {
+			lh.Push(list)
+		}
+
+	}
+	if lh.Len() > 0 {
+		heap.Init(&lh)
+	}
+	mList := &ListNode{}
+	mHead := mList
+	for lh.Len() > 0 {
+		cur := heap.Pop(&lh).(*ListNode)
+		mList.Next = cur
+		if cur != nil && cur.Next != nil {
+			heap.Push(&lh, cur.Next)
+		}
+		mList = mList.Next
+	}
+	return mHead.Next
+}
