@@ -27,4 +27,17 @@ func TestPermute(t *testing.T) {
 
 func TestPermuteUnique(t *testing.T) {
 	fmt.Println(permuteUnique([]int{2, 2, 1, 1}))
+	fmt.Println(permuteUniqueV2([]int{2, 2, 1, 1}))
+}
+
+func TestGenerateParenthesis(t *testing.T) {
+	fmt.Println(generateParenthesis(3))
+}
+
+func TestPartition(t *testing.T) {
+	fmt.Println(partition("google"))
+}
+
+func TestRestoreIpAddresses(t *testing.T) {
+	fmt.Println(restoreIpAddresses("10203040"))
 }

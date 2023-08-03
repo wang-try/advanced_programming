@@ -1,11 +1,19 @@
 package backtrack
 
-import "sort"
+import (
+	"sort"
+	"strconv"
+	"strings"
+)
 
 /*
 回溯法可以看作蛮力法的升级版，它在解决问题时的每一步都尝试所有可能的选项，最终找出所有可行的解决方案。
 回溯法非常适合解决由多个步骤组成的问题，并且每个步骤都有多个选项。在某一步选择了其中一个选项之后，就进入下一步，然后会面临新的选项。
 就这样重复选择，直至到达最终的状态
+
+除了可以解决与集合排列、组合相关的问题，回溯法还能解决很多算法面试题。如果解决一个问题需要若干步骤，并且每一步都面临若干选项，当在某一步做了某个选择之后前往下一步仍然面临若干选项，那么可以考虑尝试用回溯法解决。通常，回溯法可以用递归的代码实现。
+适用回溯法的问题的一个特征是问题可能有很多个解，并且题目要求列出所有的解。如果题目只是要求计算解的数目，或者只需要求一个最优解（通常是最大值或最小值），那么可能需要运用动态规划
+
 */
 //所有子集
 /*
@@ -189,4 +197,126 @@ func permuteUnique(nums []int) [][]int {
 	}
 	dfs(0)
 	return ans
+}
+
+func permuteUniqueV2(nums []int) [][]int {
+	var ret [][]int
+	var dfs func(int)
+	dfs = func(index int) {
+		if index == len(nums) {
+			ret = append(ret, append([]int{}, nums...))
+			return
+		}
+		set := make(map[int]struct{})
+		for i := index; i < len(nums); i++ {
+			if _, ok := set[nums[i]]; !ok {
+				set[nums[i]] = struct{}{}
+				nums[i], nums[index] = nums[index], nums[i]
+				dfs(index + 1)
+				nums[i], nums[index] = nums[index], nums[i]
+			}
+
+		}
+	}
+	dfs(0)
+	return ret
+}
+
+//生成匹配的括号
+/*
+输入一个正整数n，请输出所有包含n个左括号和n个右括号的组合，要求每个组合的左括号和右括号匹配。例如，当n等于2时，有两个符合条件的括号组合，分别是"（()）"和"()()"。
+*/
+
+func generateParenthesis(n int) []string {
+	var ret []string
+	var dfs func(int, int, int, string)
+	dfs = func(leftCnt, rightCnt, matchCnt int, str string) {
+		if matchCnt == n {
+			ret = append(ret, str)
+		}
+		if leftCnt < n {
+			dfs(leftCnt+1, rightCnt, matchCnt, str+"(")
+		}
+		if rightCnt < leftCnt && matchCnt < n {
+			dfs(leftCnt, rightCnt+1, matchCnt+1, str+")")
+		}
+
+	}
+	dfs(0, 0, 0, "")
+	return ret
+}
+
+//分割回文子字符串
+/*
+输入一个字符串，要求将它分割成若干子字符串，使每个子字符串都是回文。请列出所有可能的分割方法。
+例如，输入"google"，将输出3种符合条件的分割方法，分别是["g"，"o"，"o"，"g"，"l"，"e"]、["g"，"oo"，"g"，"l"，"e"]和["goog"，"l"，"e"]。
+*/
+func partition(s string) [][]string {
+	var ret [][]string
+	var dfs func(int, []string)
+	dfs = func(start int, base []string) {
+		if start == len(s) {
+			ret = append(ret, append([]string{}, base...))
+			return
+		}
+		for index := start; index < len(s); index++ {
+			if isPalindrome(s, start, index) {
+				base = append(base, s[start:index+1])
+				dfs(index+1, base)
+				base = base[:len(base)-1]
+			}
+		}
+
+	}
+	dfs(0, []string{})
+	return ret
+}
+
+func isPalindrome(s string, start, end int) bool {
+	lhs := start
+	rhs := end
+	for lhs <= rhs {
+		if s[lhs] != s[rhs] {
+			return false
+		}
+		lhs++
+		rhs--
+	}
+	return true
+}
+
+//恢复IP地址
+/*
+输入一个只包含数字的字符串，请列出所有可能恢复出来的IP地址。例如，输入字符串"10203040"，可能恢复出3个IP地址，分别为"10.20.30.40"、"102.0.30.40"和"10.203.0.40"。
+*/
+
+func restoreIpAddresses(s string) []string {
+	var ret []string
+	var dfs func(int, []string)
+	dfs = func(start int, base []string) {
+		if len(base) > 4 {
+			return
+		}
+		if start == len(s) && len(base) == 4 {
+			ip := strings.Join(base, ".")
+			ret = append(ret, ip)
+			return
+		}
+		for i := start; i <= start+3 && i < len(s); i++ {
+			if s[start] == '0' {
+				base = append(base, s[start:start+1])
+				dfs(i+1, base)
+				break
+			}
+			num, _ := strconv.Atoi(s[start : i+1])
+			if num > 0 && num <= 255 {
+				base = append(base, s[start:i+1])
+				dfs(i+1, base)
+				base = base[:len(base)-1]
+			}
+
+		}
+	}
+	dfs(0, []string{})
+	return ret
 }
