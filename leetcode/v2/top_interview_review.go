@@ -3648,6 +3648,83 @@ func (this *Trie) StartsWith(prefix string) bool {
 	return true
 }
 
+//10. Regular Expression Matching
+
+func isMatch(s string, p string) bool {
+	s = " " + s
+	p = " " + p
+
+	m := len(p)
+	n := len(s)
+
+	dp := make([][]bool, m)
+	for i := range dp {
+		dp[i] = make([]bool, n)
+	}
+
+	dp[0][0] = true
+	for i := 1; i < m; i++ {
+		if p[i] == '*' {
+			dp[i][0] = dp[i-2][0]
+		}
+		for j := 1; j < n; j++ {
+			if p[i] == s[j] || p[i] == '.' {
+				dp[i][j] = dp[i-1][j-1]
+			} else if p[i] == '*' {
+				dp[i][j] = dp[i-2][j] || ((p[i-1] == s[j] || p[i-1] == '.') && dp[i][j-1])
+			}
+		}
+	}
+
+	return dp[m-1][n-1]
+}
+
+// 41. First Missing Positive
+func firstMissingPositive(nums []int) int {
+	var numslen = len(nums)
+	var i = 0
+	for i < numslen {
+		if nums[i] > numslen || nums[i] <= 0 || nums[nums[i]-1] == nums[i] {
+			i = i + 1
+			continue
+		}
+		nums[i], nums[nums[i]-1] = nums[nums[i]-1], nums[i]
+	}
+
+	for i := 0; i < numslen; i++ {
+		if nums[i] != i+1 {
+			return i + 1
+		}
+	}
+	return numslen + 1
+}
+
+func trap(height []int) int {
+	left, right := 0, len(height)-1
+	res := 0
+	leftMax, rightMax := 0, 0
+
+	for left < right {
+		if height[left] < height[right] {
+			if height[left] >= leftMax {
+				leftMax = height[left]
+			} else {
+				res += leftMax - height[left]
+			}
+			left++
+		} else {
+			if height[right] >= rightMax {
+				rightMax = height[right]
+			} else {
+				res += rightMax - height[right]
+			}
+			right--
+		}
+	}
+
+	return res
+}
+
 /**
  * Your Trie object will be instantiated and called as such:
  * obj := Constructor();
