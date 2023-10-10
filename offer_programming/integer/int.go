@@ -39,36 +39,40 @@ func divide(dividend int, divisor int) int {
 
 // AddBinary 二进制加法
 func AddBinary(a, b string) string {
-	var sb strings.Builder
-	i := len(a) - 1
-	j := len(b) - 1
+	lth1 := len(a)
+	lth2 := len(b)
+	i := lth1 - 1
+	j := lth2 - 1
 	carry := 0
 	var list []int
 	for i >= 0 || j >= 0 {
-		digitA := 0
+		ofa := 0
 		if i >= 0 {
-			digitA = int(a[i] - '0')
+			ofa = int(a[i] - '0')
 			i--
 		}
-		digitB := 0
+		ofb := 0
 		if j >= 0 {
-			digitB = int(b[j] - '0')
+			ofb = int(b[j] - '0')
 			j--
 		}
-		sum := digitA + digitB + carry
+		sum := ofb + ofa + carry
 		if sum >= 2 {
 			carry = 1
-			sum -= 2
+			list = append(list, sum-2)
+		} else {
+			list = append(list, sum)
+			carry = 0
 		}
-		list = append(list, sum)
 	}
-	if carry == 1 {
+	if carry > 0 {
 		list = append(list, carry)
 	}
-	for i := len(list) - 1; i >= 0; i-- {
-		sb.WriteString(strconv.Itoa(list[i]))
+	var ret strings.Builder
+	for i = len(list) - 1; i >= 0; i-- {
+		ret.WriteString(strconv.Itoa(list[i]))
 	}
-	return sb.String()
+	return ret.String()
 
 }
 
