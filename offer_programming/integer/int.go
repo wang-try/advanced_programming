@@ -128,17 +128,32 @@ func CountBitsV4(num int) []int {
 
 // 只出现一次的数字,其他都出现了3次
 func SingleNumber(nums []int) int {
-	bitSums := make([]int, 32)
+	//golang这里int根据CPU多少位决定, 显然lc的是64位。不指定的话一开始我还错了，以为是按照int32来枚举的。
+	bitSums := make([]int32, 32)
 	for _, num := range nums {
 		for i := 0; i < 32; i++ {
-			bitSums[i] += (num >> (31 - i)) & 1
+			bitSums[i] += (int32(num) >> (31 - i)) & 1
 		}
 	}
-	ret := 0
+	ret := int32(0)
 	for i := 0; i < 32; i++ {
 		ret = (ret << 1) + bitSums[i]%3
 	}
-	return ret
+	return int(ret)
+}
+
+// ac
+func singleNumberV2(nums []int) int {
+	res := int32(0)
+	for i := 0; i < 32; i++ {
+		sum := int32(0) //记录所有nums第i位，为1的和。如图所示
+		for j := 0; j < len(nums); j++ {
+			sum += (int32(nums[j]) >> i) & 1
+		}
+		res |= (sum % 3) << i //主要题目有限制条件恰好出现三次+仅出现一次的元素3 * n + 1，故每一列的和取余的结果只有0, 1
+	}
+
+	return int(res)
 }
 
 // 单词长度的最大乘积
