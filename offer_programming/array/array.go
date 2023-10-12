@@ -159,7 +159,7 @@ func FindMaxLength01Same(nums []int) int {
 			tmp = -1
 		}
 		sum += tmp
-		if index, ok := sum2index[sum]; ok {
+		if index, ok := sum2index[sum-0]; ok {
 			if (i - index) > maxLth {
 				maxLth = i - index
 			}
