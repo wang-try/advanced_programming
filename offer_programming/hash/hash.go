@@ -290,6 +290,7 @@ func FindMinDifference(timePoints []string) int {
 			last = i
 		}
 	}
+	//要把第1个时间加上1440分钟表示第2天的同一时间，求出它与最后一个时间的时间差
 	if minDiff > (len(hash) - last + first) {
 		minDiff = len(hash) - last + first
 	}
