@@ -118,6 +118,7 @@ func ConstructorV2(w []int) SolutionV2 {
 	return s
 }
 
+// 1
 func (this *SolutionV2) PickIndex() int {
 	rand.Seed(time.Now().UnixNano())
 	r := rand.Intn(this.Sum)
