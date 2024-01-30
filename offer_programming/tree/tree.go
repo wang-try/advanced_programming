@@ -222,6 +222,7 @@ func dfsPathSum(root *TreeNode, targetSum int, amap map[int]int, path int) int {
 	amap[path] += 1
 	count += dfsPathSum(root.Left, targetSum, amap, path)
 	count += dfsPathSum(root.Right, targetSum, amap, path)
+	//函数结束时，程序将回到节点的父节点，所以要在函数结束之前将当期节点从路径中删除
 	amap[path] -= 1
 	return count
 }
@@ -406,40 +407,30 @@ func convertBSTV2(root *TreeNode) *TreeNode {
 */
 
 type BSTIterator struct {
-	IteList []int
+	cur   *TreeNode
+	stack []*TreeNode
 }
 
 func ConstructorBST(root *TreeNode) BSTIterator {
-	cur := root
-	var stack []*TreeNode
-	var IteList []int
-	for cur != nil || len(stack) > 0 {
-		for cur != nil {
-			stack = append(stack, cur)
-			cur = cur.Left
-		}
-		cur = stack[len(stack)-1]
-		stack = stack[:len(stack)-1]
-		IteList = append(IteList, cur.Val)
-		cur = cur.Right
+	return BSTIterator{
+		cur:   root,
+		stack: nil,
 	}
-	return BSTIterator{IteList: IteList}
 }
 
 func (this *BSTIterator) Next() int {
-	if len(this.IteList) > 0 {
-		cur := this.IteList[0]
-		this.IteList = this.IteList[1:]
-		return cur
+	for this.cur != nil {
+		this.stack = append(this.stack, this.cur)
+		this.cur = this.cur.Left
 	}
-	return -1
+	num := this.stack[len(this.stack)-1].Val
+	this.stack = this.stack[:len(this.stack)-1]
+	this.cur = this.cur.Right
+	return num
 }
 
 func (this *BSTIterator) HasNext() bool {
-	if len(this.IteList) > 0 {
-		return true
-	}
-	return false
+	return this.cur != nil || len(this.stack) > 0
 }
 
 //二叉搜索树中两个节点的值之和
