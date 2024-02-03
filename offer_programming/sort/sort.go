@@ -57,6 +57,7 @@ func MergeV2(intervals [][]int) [][]int {
 			end = intervals[i][1]
 		}
 	}
+	res = append(res, []int{start, end})
 	return res
 }
 
