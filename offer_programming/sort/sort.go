@@ -10,36 +10,7 @@ import (
 输入一个区间的集合，请将重叠的区间合并。每个区间用两个数字比较，分别表示区间的起始位置和结束位置。例如，输入区间[[1，3]，[4，5]，[8，10]，[2，6]，[9，12]，[15，18]]，
 合并重叠的区间之后得到[[1，6]，[8，12]，[15，18]]。
 */
-
 func Merge(intervals [][]int) [][]int {
-	sort.Slice(intervals, func(i, j int) bool {
-		return intervals[i][1] < intervals[j][1]
-	})
-	lth := len(intervals)
-	var ret [][]int
-	cur := intervals[lth-1]
-	for i := lth - 2; i >= 0; i-- {
-		if intervals[i][1] >= cur[0] && intervals[i][1] <= cur[1] {
-			if intervals[i][0] < cur[0] {
-				cur[0] = intervals[i][0]
-			}
-		} else {
-			ret = append(ret, cur)
-			cur = intervals[i]
-		}
-	}
-	ret = append(ret, cur)
-	lhs := 0
-	rhs := len(ret) - 1
-	for lhs <= rhs {
-		ret[lhs], ret[rhs] = ret[rhs], ret[lhs]
-		lhs++
-		rhs--
-	}
-	return ret
-}
-
-func MergeV2(intervals [][]int) [][]int {
 	sort.Slice(intervals, func(i, j int) bool {
 		return intervals[i][0] < intervals[j][0]
 	})
