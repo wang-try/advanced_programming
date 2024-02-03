@@ -32,6 +32,10 @@ func Merge(intervals [][]int) [][]int {
 	return res
 }
 
+/*
+计数排序是一种线性时间的整数排序算法。如果数组的长度为n，整数范围（数组中最大整数与最小整数的差值）为k，
+对于k远小于n的场景（如对某公司所有员工的年龄排序），那么计数排序的时间复杂度优于其他基于比较的排序算法（如归并排序、快速排序等）。
+*/
 // 计数排序
 func SortArray(nums []int) []int {
 	min := math.MaxInt
