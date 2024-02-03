@@ -229,9 +229,18 @@ func mergeList(l1, l2 *ListNode) *ListNode {
 输入k个排序的链表，请将它们合并成一个排序的链表。例如，输入3个排序的链表
 */
 func mergeKLists(lists []*ListNode) *ListNode {
-	if len(lists) == 1 {
-		return lists[0]
+	if len(lists) == 0 {
+		return nil
 	}
-	mid := len(lists) / 2
-	return mergeList(mergeKLists(lists[:mid]), mergeKLists(lists[mid:]))
+	return recMergeLists(lists, 0, len(lists))
+}
+
+func recMergeLists(lists []*ListNode, start, end int) *ListNode {
+	if start+1 == end {
+		return lists[start]
+	}
+	mid := (start + end) / 2
+	head1 := recMergeLists(lists, start, mid)
+	head2 := recMergeLists(lists, mid, end)
+	return mergeList(head1, head2)
 }
