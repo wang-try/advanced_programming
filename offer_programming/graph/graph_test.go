@@ -58,3 +58,7 @@ func TestLongestConsecutive(t *testing.T) {
 	//[9,1,4,7,3,-1,0,5,8,-1,6]
 	fmt.Println(longestConsecutiveV2([]int{9, 1, 4, 7, 3, -1, 0, 5, 8, -1, 6}))
 }
+
+func TestMaxAreaOfIslandV2(t *testing.T) {
+	fmt.Println(maxAreaOfIslandV2([][]int{{1, 1}}))
+}

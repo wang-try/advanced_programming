@@ -211,6 +211,21 @@ func minCostV2(costs [][]int) int {
 	return min(dp[0][last], min(dp[1][last], dp[2][last]))
 }
 
+func minCostV3(costs [][]int) int {
+	red := costs[0][0]
+	green := costs[0][1]
+	blue := costs[0][2]
+	for i := 1; i < len(costs); i++ {
+		tr := min(green, blue) + costs[i][0]
+		tg := min(red, blue) + costs[i][1]
+		tb := min(red, green) + costs[i][2]
+		red = tr
+		green = tg
+		blue = tb
+	}
+	return min(blue, min(red, green))
+}
+
 //翻转字符
 /*
 输入一个只包含'0'和'1'的字符串，其中，'0'可以翻转成'1'，'1'可以翻转成'0'。请问至少需要翻转几个字符，才可以使翻转之后的字符串中所有的'0'位于'1'的前面？翻转之后的字符串可能只包含字符'0'或'1'。
@@ -333,6 +348,30 @@ func lenLongestFibSubSeq(arr []int) int {
 		return maxLen
 	}
 	return 0
+}
+
+func lenLongestFibSubSeqV2(arr []int) int {
+	maxFibLth := 0
+	num2index := make(map[int]int)
+	for i, num := range arr {
+		num2index[num] = i
+	}
+	dp := make([][]int, len(arr))
+	for i := 0; i < len(arr); i++ {
+		dp[i] = make([]int, len(arr))
+	}
+	for i := 2; i < len(arr); i++ {
+		for j := 0; j < i; j++ {
+			if index, ok := num2index[arr[i]-arr[j]]; ok && index < j {
+				dp[i][j] = dp[j][index] + 1
+			}
+			maxFibLth = max(maxFibLth, dp[i][j])
+		}
+	}
+	if maxFibLth > 0 {
+		maxFibLth += 2
+	}
+	return maxFibLth
 }
 
 //最少回文分割

@@ -45,6 +45,89 @@ func dfsMaxAreaOfIsland(grid [][]int, i, j int, area *int) {
 	dfsMaxAreaOfIsland(grid, i, j-1, area)
 }
 
+// 广度优先搜索
+func maxAreaOfIslandV2(grid [][]int) int {
+	rows := len(grid)
+	columns := len(grid[0])
+	visited := make([][]bool, rows)
+	for i := 0; i < rows; i++ {
+		visited[i] = make([]bool, columns)
+	}
+	maxArea := 0
+	for i := 0; i < rows; i++ {
+		for j := 0; j < columns; j++ {
+			if grid[i][j] == 1 && !visited[i][j] {
+				area := getArea(grid, visited, i, j)
+				maxArea = max(maxArea, area)
+			}
+		}
+	}
+	return maxArea
+}
+
+func getArea(grid [][]int, visited [][]bool, i, j int) int {
+	var queue [][]int
+	queue = append(queue, []int{i, j})
+	visited[i][j] = true
+	dirs := [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+	area := 0
+	for len(queue) > 0 {
+		pos := queue[0]
+		queue = queue[1:]
+		area++
+		for _, dir := range dirs {
+			r := pos[0] + dir[0]
+			c := pos[1] + dir[1]
+			if r >= 0 && r < len(grid) && c >= 0 && c < len(grid[0]) && grid[r][c] == 1 && !visited[r][c] {
+				queue = append(queue, []int{r, c})
+				visited[r][c] = true
+			}
+		}
+	}
+	return area
+}
+
+func getAreaDfs(grid [][]int, visited [][]bool, i, j int) int {
+	area := 1
+	visited[i][j] = true
+	dirs := [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+	for _, dir := range dirs {
+		r := i + dir[0]
+		c := j + dir[1]
+		if r >= 0 && r < len(grid) && c >= 0 && c < len(grid[0]) && grid[r][c] == 1 && !visited[r][c] {
+			area += getArea(grid, visited, r, c)
+		}
+	}
+	return area
+}
+
+func maxAreaOfIslandV3(grid [][]int) int {
+	maxArea := 0
+	var dfs func(i, j int) int
+	dfs = func(i, j int) int {
+		area := 1
+		dirs := [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+		grid[i][j] = 0
+		for _, dir := range dirs {
+			r := i + dir[0]
+			c := j + dir[1]
+			if r >= 0 && r < len(grid) && c >= 0 && c < len(grid[0]) && grid[r][c] == 1 {
+				area += dfs(r, c)
+			}
+		}
+		return area
+	}
+
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[0]); j++ {
+			if grid[i][j] == 1 {
+				maxArea = max(dfs(i, j), maxArea)
+			}
+		}
+	}
+	return maxArea
+}
+
 //二分图
 /*
 如果能将一个图中的节点分成A、B两个部分，使任意一条边的一个节点属于A而另一个节点属于B，那么该图就是一个二分图。输入一个由数组graph表示的图，graph[i]中包含所有和节点i相邻的节点，请判断该图是否为二分图
