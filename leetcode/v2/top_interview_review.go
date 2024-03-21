@@ -133,6 +133,22 @@ func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
 	return head
 }
 
+func mergeTwoListsV2(list1 *ListNode, list2 *ListNode) *ListNode {
+	dummy := new(ListNode)
+	cur := dummy
+	for list1 != nil || list2 != nil {
+		if list2 == nil || list1 != nil && list1.Val < list2.Val {
+			cur.Next = list1
+			list1 = list1.Next
+		} else {
+			cur.Next = list2
+			list2 = list2.Next
+		}
+		cur = cur.Next
+	}
+	return dummy.Next
+}
+
 // 26. Remove Duplicates from Sorted Array
 func removeDuplicates(nums []int) int {
 	if len(nums) == 0 {
@@ -269,6 +285,30 @@ func mySqrtV2(x int) int {
 	}
 }
 
+func mySqrtV3(x int) int {
+	if x == 1 {
+		return 1
+	}
+	lhs := 0
+	rhs := x
+
+	for lhs <= rhs {
+		mid := (lhs + rhs) / 2
+		if mid*mid == x {
+			return mid
+		} else if mid*mid > x {
+			rhs = mid
+		} else {
+			if (mid+1)*(mid+1) > x {
+				return mid
+			} else {
+				lhs = mid
+			}
+		}
+	}
+	return -1
+}
+
 // 70. Climbing Stairs
 func climbStairs(n int) int {
 	dp := make([]int, n+1)
@@ -304,6 +344,26 @@ func merge(nums1 []int, m int, nums2 []int, n int) {
 		}
 	}
 
+}
+
+func mergeV2(nums1 []int, m int, nums2 []int, n int) {
+	index1 := m - 1
+	index2 := n - 1
+	iteIndex := len(nums1) - 1
+	for index1 >= 0 || index2 >= 0 {
+		if index2 < 0 {
+			break
+		}
+		if index1 < 0 || (index1 >= 0 && index2 >= 0 && nums1[index1] < nums2[index2]) {
+			nums1[iteIndex] = nums2[index2]
+			index2--
+			iteIndex--
+		} else {
+			nums1[iteIndex] = nums1[index1]
+			iteIndex--
+			index1--
+		}
+	}
 }
 
 // Definition for a binary tree node.
@@ -375,6 +435,27 @@ func isSymmetricV2(root *TreeNode) bool {
 		nodeList = nodeList[lth:]
 	}
 	return true
+}
+
+func isSymmetricV3(root *TreeNode) bool {
+	if root == nil {
+		return true
+	}
+	return isSymmetricHelp(root.Left, root.Right)
+}
+
+func isSymmetricHelp(node1, node2 *TreeNode) bool {
+	if node1 == nil && node2 == nil {
+		return true
+	}
+	if node1 != nil && node2 != nil {
+		if node1.Val == node2.Val {
+			return isSymmetricHelp(node1.Left, node2.Right) &&
+				isSymmetricHelp(node1.Right, node2.Left)
+		}
+	}
+
+	return false
 }
 
 // 104. Maximum Depth of Binary Tree
@@ -465,6 +546,34 @@ func isPalindrome(s string) bool {
 
 		lhs++
 		rhs--
+	}
+	return true
+}
+
+func isPalindromeV2(s string) bool {
+	s = strings.ToLower(s)
+	lhs := 0
+	rhs := len(s) - 1
+	for lhs <= rhs {
+		condition1 := (s[lhs] >= '0' && s[lhs] <= '9') || (s[lhs] >= 'a' && s[lhs] <= 'z')
+		condition2 := (s[rhs] >= '0' && s[rhs] <= '9') || (s[rhs] >= 'a' && s[rhs] <= 'z')
+		if !condition1 {
+			lhs++
+			continue
+		}
+		if !condition2 {
+			rhs--
+			continue
+		}
+
+		if condition1 && condition2 {
+			if s[lhs] != s[rhs] {
+				return false
+			}
+			lhs++
+			rhs--
+		}
+
 	}
 	return true
 }
@@ -606,6 +715,28 @@ func isHappy(n int) bool {
 	}
 }
 
+func isHappyV2(n int) bool {
+	isCompute := make(map[int]bool)
+	for {
+		f := 0
+		for n >= 10 {
+			tmp := n / 10
+			num := n % 10
+			f += num * num
+			n = tmp
+		}
+		f += n * n
+		n = f
+		if n == 1 {
+			return true
+		}
+		if _, ok := isCompute[n]; ok {
+			return false
+		}
+		isCompute[n] = true
+	}
+}
+
 // 206. Reverse Linked List
 func reverseList(head *ListNode) *ListNode {
 	if head == nil || head.Next == nil {
@@ -620,6 +751,18 @@ func reverseList(head *ListNode) *ListNode {
 		cur = next
 	}
 	head.Next = nil
+	return pre
+}
+
+func reverseListV2(head *ListNode) *ListNode {
+	var pre *ListNode = nil
+	cur := head
+	for cur != nil {
+		next := cur.Next
+		cur.Next = pre
+		pre = cur
+		cur = next
+	}
 	return pre
 }
 
@@ -669,6 +812,24 @@ func isPalindromeList(head *ListNode) bool {
 		}
 		list1 = list1.Next
 		list2 = list2.Next
+	}
+	return true
+}
+
+func isPalindromeListV3(head *ListNode) bool {
+	slow, fast := head, head.Next
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+	l2 := reverseListV2(slow.Next)
+	cur1, cur2 := head, l2
+	for cur2 != nil {
+		if cur2.Val != cur1.Val {
+			return false
+		}
+		cur1 = cur1.Next
+		cur2 = cur2.Next
 	}
 	return true
 }
@@ -727,6 +888,24 @@ func isAnagram(s string, t string) bool {
 	return false
 }
 
+func isAnagramV2(s string, t string) bool {
+	if len(s) != len(t) {
+		return false
+	}
+	var hash [26]int
+	for i := 0; i < len(s); i++ {
+		hash[s[i]-'a']++
+	}
+
+	for i := 0; i < len(t); i++ {
+		hash[t[i]-'a']--
+		if hash[t[i]-'a'] < 0 {
+			return false
+		}
+	}
+	return true
+}
+
 //268. Missing Number
 
 func missingNumber(nums []int) int {
@@ -737,7 +916,25 @@ func missingNumber(nums []int) int {
 		cmpSum += num
 	}
 	return sum - cmpSum
+}
 
+func missingNumberV2(nums []int) int {
+	index := 0
+	for index < len(nums) {
+		if nums[index] != index && nums[index] < len(nums) {
+			nums[index], nums[nums[index]] = nums[nums[index]], nums[index]
+			continue
+		}
+		index++
+	}
+	index = 0
+	for index < len(nums) {
+		if nums[index] != index {
+			return index
+		}
+		index++
+	}
+	return index
 }
 
 // 283. Move Zeroes
@@ -932,6 +1129,38 @@ func addTwoNumbersRec(l1 *ListNode, l2 *ListNode, jinWei int) *ListNode {
 	return node
 }
 
+func addTwoNumbersV3(l1 *ListNode, l2 *ListNode) *ListNode {
+	dummy := new(ListNode)
+	cur1 := l1
+	cur2 := l2
+	carry := 0
+	curNode := dummy
+	for cur1 != nil || cur2 != nil {
+		sum := 0
+		if cur1 != nil {
+			sum += cur1.Val
+			cur1 = cur1.Next
+		}
+		if cur2 != nil {
+			sum += cur2.Val
+			cur2 = cur2.Next
+		}
+		sum += carry
+		num := sum % 10
+		carry = sum / 10
+		curNode.Next = &ListNode{
+			Val: num,
+		}
+		curNode = curNode.Next
+	}
+	if carry > 0 {
+		curNode.Next = &ListNode{
+			Val: carry,
+		}
+	}
+	return dummy.Next
+}
+
 // 3. Longest Substring Without Repeating Character
 func lengthOfLongestSubstring(s string) int {
 	if len(s) == 0 {
@@ -984,6 +1213,26 @@ func lengthOfLongestSubstringV2(s string) int {
 		hash[s[i]] = i + 1
 	}
 	return maxLength
+}
+
+func lengthOfLongestSubstringV3(s string) int {
+	lhs := 0
+	rhs := 0
+	ch2index := make(map[uint8]int)
+	maxLth := 0
+	for rhs < len(s) {
+		if index, ok := ch2index[s[rhs]]; !ok || lhs > index {
+			ch2index[s[rhs]] = rhs
+			if rhs-lhs+1 > maxLth {
+				maxLth = rhs - lhs + 1
+			}
+		} else {
+			lhs = index + 1
+			ch2index[s[rhs]] = rhs
+		}
+		rhs++
+	}
+	return maxLth
 }
 
 // 5. Longest Palindromic Substring
@@ -1259,6 +1508,26 @@ func generateParenthesisHelpV2(res *[]string, str string, cnt, remain2match, num
 	}
 }
 
+func generateParenthesisV3(n int) []string {
+	var ret []string
+	var dfs func(leftCnt, rightCnt int, str string)
+
+	dfs = func(leftCnt, rightCnt int, str string) {
+		if leftCnt == n && rightCnt == n {
+			ret = append(ret, str)
+		}
+		if leftCnt < n {
+			dfs(leftCnt+1, rightCnt, str+"(")
+		}
+		if rightCnt < n && leftCnt > rightCnt {
+			dfs(leftCnt, rightCnt+1, str+")")
+		}
+	}
+
+	dfs(0, 0, "")
+	return ret
+}
+
 // 29. Divide Two Integers
 func divide(dividend int, divisor int) int {
 
@@ -1335,7 +1604,6 @@ func search(nums []int, target int) int {
 		mid := (lhs + rhs) / 2
 		if target == nums[mid] {
 			return mid
-
 		}
 		//右半部分排好序
 		if nums[mid] < nums[rhs] {
@@ -1573,6 +1841,39 @@ func countAndSay(n int) string {
 	return str
 }
 
+func countAndSayV2(n int) string {
+	say := ""
+	for i := 1; i <= n; i++ {
+		if i == 1 {
+			say = "1"
+			continue
+		}
+		cnt := uint8(0)
+		var num uint8
+		var sb strings.Builder
+		for k := 0; k < len(say); k++ {
+			if k == 0 {
+				cnt++
+				num = say[k]
+			} else {
+				if say[k] == say[k-1] {
+					cnt++
+				} else {
+					sb.WriteByte(cnt + '0')
+					sb.WriteByte(num)
+					num = say[k]
+					cnt = 1
+				}
+			}
+		}
+		sb.WriteByte(cnt + '0')
+		sb.WriteByte(num)
+		say = sb.String()
+
+	}
+	return say
+}
+
 // 46. Permutations
 func permute(nums []int) [][]int {
 	var res [][]int
@@ -1592,6 +1893,23 @@ func recPermute(start int, nums []int, res *[][]int) {
 		recPermute(start+1, nums, res)
 		nums[i], nums[start] = nums[start], nums[i]
 	}
+}
+
+func permuteV2(nums []int) [][]int {
+	var ret [][]int
+	var dfs func(start int)
+	dfs = func(start int) {
+		if start == len(nums) {
+			ret = append(ret, append([]int{}, nums...))
+		}
+		for i := start; i < len(nums); i++ {
+			nums[i], nums[start] = nums[start], nums[i]
+			dfs(start + 1)
+			nums[i], nums[start] = nums[start], nums[i]
+		}
+	}
+	dfs(0)
+	return ret
 }
 
 // 48. Rotate Image
@@ -1642,6 +1960,24 @@ func myPow(x float64, n int) float64 {
 	return res
 }
 
+func myPowV2(x float64, n int) float64 {
+	if n < 0 {
+		x, n = 1/x, -n
+	}
+	var ret float64 = 1.0
+	for n > 0 {
+		tmp, acc := x, 1
+		for n >= acc<<1 {
+			tmp = tmp * tmp
+			acc = acc << 1
+		}
+		ret *= tmp
+		n -= acc
+	}
+	return ret
+
+}
+
 // 53. Maximum Subarray
 func maxSubArray(nums []int) int {
 	maxSubArr := nums[0]
@@ -1680,6 +2016,22 @@ func maxSubArrayV2(nums []int) int {
 		res = max(res, dp[i])
 	}
 	return res
+}
+
+func maxSubArrayV3(nums []int) int {
+	max := nums[0]
+	pre := nums[0]
+	for i := 1; i < len(nums); i++ {
+		cur := nums[i]
+		if nums[i]+pre > nums[i] {
+			cur = nums[i] + pre
+		}
+		if cur > max {
+			max = cur
+		}
+		pre = cur
+	}
+	return max
 }
 
 // 54. Spiral Matrix
@@ -1814,61 +2166,81 @@ func spiralOrderV3(matrix [][]int) []int {
 
 }
 
-// 55. Jump Game
-func canJump(nums []int) bool {
-	//[2,3,1,1,4]
-	var res bool
-	recCanJump(nums, 0, &res)
-	return res
+func spiralOrderV4(matrix [][]int) []int {
+	var ret []int
+	i := 0
+	j := 0
+	cnt := 0
+	row := len(matrix)
+	column := len(matrix[0])
+
+	all := 0
+	for {
+		//向右
+		if all == row*column {
+			break
+		}
+		for ; j < column-cnt && all < row*column; j++ {
+			ret = append(ret, matrix[i][j])
+			all++
+		}
+		j--
+		//向下
+		for i += 1; i < row-cnt && all < row*column; i++ {
+			ret = append(ret, matrix[i][j])
+			all++
+		}
+		//向左
+		i--
+		for j -= 1; j >= cnt && all < row*column; j-- {
+			ret = append(ret, matrix[i][j])
+			all++
+		}
+		cnt++
+		//向上
+		j++
+		for i -= 1; i >= cnt && all < row*column; i-- {
+			ret = append(ret, matrix[i][j])
+			all++
+		}
+		i++
+		j++
+
+	}
+	return ret
 }
 
-func recCanJump(nums []int, position int, res *bool) {
+// 55. Jump Game
+func canJump(nums []int) bool {
+	target := len(nums) - 1
 
-	if position == len(nums)-1 {
-		*res = true
-		return
-	}
+	isDeal := make(map[int]bool)
+	var dfs func(index int) bool
+	dfs = func(index int) bool {
 
-	for i := 1; i <= nums[position]; i++ {
-		if *res == true {
-			return
+		if index >= target {
+			return true
 		}
-		if position+i < len(nums) {
-			recCanJump(nums, position+i, res)
+		step := nums[index]
+		isDeal[index] = true
+		if index+step >= target {
+			return true
 		}
-	}
 
+		for i := 1; i <= step; i++ {
+			if _, ok := isDeal[index+i]; !ok {
+				if dfs(index + i) {
+					return true
+				}
+			}
+		}
+		return false
+
+	}
+	return dfs(0)
 }
 
 func canJumpV2(nums []int) bool {
-	lth := len(nums) - 1
-	if lth <= 0 {
-		return true
-	}
-	res := make([]bool, lth+1)
-	recCanJumpV2(lth, 0, nums, res)
-	return res[lth]
-}
-
-func recCanJumpV2(lth int, startIndex int, nums []int, res []bool) {
-	for i := 1; i <= nums[startIndex]; i++ {
-		pos := i + startIndex
-		if pos < lth {
-			if res[pos] {
-				continue
-			}
-			res[pos] = true
-			recCanJumpV2(lth, pos, nums, res)
-		} else if pos == lth {
-			res[pos] = true
-
-		} else {
-			break
-		}
-	}
-}
-
-func canJumpV3(nums []int) bool {
 	length := len(nums)
 	if length == 1 {
 		return true
@@ -1889,6 +2261,22 @@ func canJumpV3(nums []int) bool {
 	}
 
 	return true
+}
+
+func canJumpV3(nums []int) bool {
+	canJumpMaxIndex := 0
+	for i := 0; i < len(nums); i++ {
+		if canJumpMaxIndex >= len(nums)-1 {
+			return true
+		}
+		if canJumpMaxIndex >= i {
+			step := nums[i]
+			if step+i > canJumpMaxIndex {
+				canJumpMaxIndex = step + i
+			}
+		}
+	}
+	return false
 }
 
 // 牛逼
@@ -1965,6 +2353,26 @@ func uniquePaths(m int, n int) int {
 	return dp[m-1][n-1]
 }
 
+func uniquePathsV2(m int, n int) int {
+	left := 0
+	upRow := make([]int, n)
+	path := 0
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if i == 0 || j == 0 {
+				left = 1
+				path = 1
+				upRow[j] = 1
+			} else {
+				path = left + upRow[j]
+				upRow[j] = path
+				left = path
+			}
+		}
+	}
+	return path
+}
+
 // 73. Set Matrix Zeroes
 func setZeroes(matrix [][]int) {
 	row := len(matrix)
@@ -2003,6 +2411,47 @@ func setZeroes(matrix [][]int) {
 
 }
 
+func setZeroesV2(matrix [][]int) {
+	isSetFirsColumn := false
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[i]); j++ {
+			if matrix[i][j] == 0 {
+				if j == 0 {
+					isSetFirsColumn = true
+					continue
+				}
+				//设置行
+				matrix[i][0] = 0
+				//设置列
+				matrix[0][j] = 0
+			}
+		}
+	}
+	for i := 1; i < len(matrix); i++ {
+		for j := 1; j < len(matrix[i]); j++ {
+			if matrix[i][0] == 0 {
+				matrix[i][j] = 0
+			}
+			if matrix[0][j] == 0 {
+				matrix[i][j] = 0
+			}
+		}
+	}
+
+	if matrix[0][0] == 0 {
+		for j := 0; j < len(matrix[0]); j++ {
+			matrix[0][j] = 0
+		}
+	}
+
+	if isSetFirsColumn {
+		for i := 0; i < len(matrix); i++ {
+			matrix[i][0] = 0
+		}
+	}
+
+}
+
 // 75 Sort Colors
 func sortColors(nums []int) {
 	lhs := 0
@@ -2019,6 +2468,23 @@ func sortColors(nums []int) {
 			nums[i], nums[rhs] = nums[rhs], nums[i]
 			rhs--
 		}
+	}
+}
+
+func sortColorsV2(nums []int) {
+	zeroIndex := 0
+	twoIndex := len(nums) - 1
+	curIndex := 0
+	for curIndex <= twoIndex {
+		for nums[curIndex] == 2 && twoIndex >= curIndex {
+			nums[curIndex], nums[twoIndex] = nums[twoIndex], nums[curIndex]
+			twoIndex--
+		}
+		if nums[curIndex] == 0 {
+			nums[curIndex], nums[zeroIndex] = nums[zeroIndex], nums[curIndex]
+			zeroIndex++
+		}
+		curIndex++
 	}
 }
 
@@ -2056,6 +2522,24 @@ func subsetsV2(nums []int) [][]int {
 		}
 	}
 	return res
+}
+
+func subsetsV3(nums []int) [][]int {
+	var ret [][]int
+	var dfs func(index int, subNums []int)
+	dfs = func(index int, subNums []int) {
+		ret = append(ret, append([]int{}, subNums...))
+		if index == len(nums) {
+			return
+		}
+		for i := index; i < len(nums); i++ {
+			subNums = append(subNums, nums[i])
+			dfs(i+1, subNums)
+			subNums = subNums[:len(subNums)-1]
+		}
+	}
+	dfs(0, []int{})
+	return ret
 }
 
 // 79. Word Search
@@ -2169,6 +2653,41 @@ func existHelp(board [][]byte, row, column int, word string) bool {
 	return false
 }
 
+func exist(board [][]byte, word string) bool {
+	var dfs func(i, j, searchIndex int) bool
+	dfs = func(i, j, searchIndex int) bool {
+		if searchIndex == len(word) {
+			return true
+		}
+		if i < 0 || j < 0 || i >= len(board) || j >= len(board[0]) {
+			return false
+		}
+		if board[i][j] == word[searchIndex] {
+			tmp := board[i][j]
+			board[i][j] = '0'
+			up := dfs(i-1, j, searchIndex+1)
+			down := dfs(i+1, j, searchIndex+1)
+			left := dfs(i, j-1, searchIndex+1)
+			right := dfs(i, j+1, searchIndex+1)
+			board[i][j] = tmp
+			return up || down || left || right
+		}
+		return false
+	}
+
+	for i := 0; i < len(board); i++ {
+		for j := 0; j < len(board[0]); j++ {
+			if board[i][j] == word[0] {
+				//iter := make(map[int]bool)
+				if dfs(i, j, 0) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 // 91. Decode Ways
 func numDecodings(s string) int {
 	if s[0] == '0' {
@@ -2209,10 +2728,54 @@ func numDecodingsV2(s string) int {
 		}
 		if s[i-2] == '1' || (s[i-2] == '2' && s[i-1] < '7') {
 			dp[i] += dp[i-2]
-
 		}
 	}
 	return dp[lth]
+}
+
+func numDecodingsV3(s string) int {
+	if s[0] == '0' {
+		return 0
+	}
+	dp := make([]int, len(s)+1)
+	dp[0] = 1
+	dp[1] = 1
+	for i := 1; i < len(s); i++ {
+		if s[i] != '0' {
+			dp[i+1] += dp[i]
+		}
+		if s[i-1] != '0' {
+			num, _ := strconv.Atoi(s[i-1 : i+1])
+			if num <= 26 {
+				dp[i+1] += dp[i-1]
+			}
+		}
+	}
+	return dp[len(s)]
+}
+
+func numDecodingsV4(s string) int {
+	if s[0] == '0' {
+		return 0
+	}
+	preTwo := 1
+	preOne := 1
+	cur := 1
+	for i := 1; i < len(s); i++ {
+		cur = 0
+		if s[i] != '0' {
+			cur += preOne
+		}
+		if s[i-1] != '0' {
+			num, _ := strconv.Atoi(s[i-1 : i+1])
+			if num <= 26 {
+				cur += preTwo
+			}
+		}
+		preTwo, preOne = preOne, cur
+
+	}
+	return cur
 }
 
 // 98. Validate Binary Search Tree
@@ -2277,6 +2840,24 @@ func traceTree(root *TreeNode, level int, result [][]int) [][]int {
 	result = traceTree(root.Left, level+1, result)
 	result = traceTree(root.Right, level+1, result)
 	return result
+}
+
+func levelOrderV3(root *TreeNode) [][]int {
+	var ret [][]int
+	var dfs func(node *TreeNode, level int)
+	dfs = func(node *TreeNode, level int) {
+		if node == nil {
+			return
+		}
+		if len(ret) < level+1 {
+			ret = append(ret, []int{})
+		}
+		ret[level] = append(ret[level], node.Val)
+		dfs(node.Left, level+1)
+		dfs(node.Right, level+1)
+	}
+	dfs(root, 0)
+	return ret
 }
 
 // 103. Binary Tree Zigzag Level Order Traversal
@@ -2718,6 +3299,31 @@ func partitionRec(s string, substr string, end int, list []string, res *[][]stri
 
 }
 
+func partitionV4(s string) [][]string {
+	var ret [][]string
+	var dfs func(index int, combination []string)
+
+	dfs = func(index int, combination []string) {
+		if index == len(s) {
+			ret = append(ret, append([]string{}, combination...))
+			return
+		}
+
+		if index < len(s) {
+			for i := index; i < len(s); i++ {
+				str := s[index : i+1]
+				if isPal(str) {
+					combination = append(combination, str)
+					dfs(i+1, combination)
+					combination = combination[:len(combination)-1]
+				}
+			}
+		}
+	}
+	dfs(0, []string{})
+	return ret
+}
+
 func partitionV2(s string) [][]string {
 	dp := make([][][]string, len(s))
 	dp[0] = append(dp[0], []string{string(s[0])})
@@ -2970,6 +3576,103 @@ func (this *LRUCache) Put(key int, value int) {
 
 }
 
+type LRUCacheV2 struct {
+	head     *LRUNodeV2
+	tail     *LRUNodeV2
+	key2node map[int]*LRUNodeV2
+	capacity int
+	lth      int
+}
+
+type LRUNodeV2 struct {
+	pre  *LRUNodeV2
+	next *LRUNodeV2
+	val  int
+	key  int
+}
+
+func ConstructorLRU(capacity int) LRUCacheV2 {
+	return LRUCacheV2{
+		head:     nil,
+		tail:     nil,
+		key2node: make(map[int]*LRUNodeV2),
+		capacity: capacity,
+		lth:      0,
+	}
+}
+
+func (this *LRUCacheV2) Get(key int) int {
+	if node, ok := this.key2node[key]; ok {
+		this.Put(key, node.val)
+		return node.val
+	}
+	return -1
+}
+
+func (this *LRUCacheV2) Put(key int, value int) {
+	//初始化
+	if this.lth == 0 || (this.capacity == 1 && this.lth == 1) {
+		lruNode := &LRUNodeV2{
+			pre:  nil,
+			next: nil,
+			key:  key,
+			val:  value,
+		}
+		this.head, this.tail = lruNode, lruNode
+		this.key2node[key] = lruNode
+		this.lth++
+		return
+	}
+
+	//key 存在
+	if node, ok := this.key2node[key]; ok {
+		node.val = value
+		//是表头
+		if node == this.head {
+			return
+		}
+		//是表尾
+		if node == this.tail {
+			this.tail = node.pre
+			node.pre.next = nil
+			node.pre = nil
+			this.head.pre = node
+			node.next = this.head
+			this.head = node
+			return
+		}
+		//在中间移动到表头
+		node.pre.next = node.next
+		node.next.pre = node.pre
+		node.pre = nil
+		this.head.pre = node
+		node.next = this.head
+		this.head = node
+	} else {
+		//不存在
+		lruNode := &LRUNodeV2{
+			pre:  nil,
+			next: nil,
+			val:  value,
+			key:  key,
+		}
+		lruNode.pre = nil
+		this.head.pre = lruNode
+		lruNode.next = this.head
+		this.head = lruNode
+		this.key2node[key] = lruNode
+		if this.lth < this.capacity {
+			this.lth++
+		} else {
+			//驱逐表尾
+			delete(this.key2node, this.tail.key)
+			this.tail = this.tail.pre
+			this.tail.next = nil
+		}
+	}
+
+}
+
 // 超时 148. Sort List
 func sortList(head *ListNode) *ListNode {
 	if head == nil {
@@ -3029,6 +3732,59 @@ func mergeSortList(list1 *ListNode, list2 *ListNode) *ListNode {
 	}
 
 	return result.Next
+}
+
+func sortListV3(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+
+	slow, fast := head, head.Next
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+	rightHead := slow.Next
+	slow.Next = nil
+
+	return mergeList(sortList(head), sortList(rightHead))
+
+}
+
+func sortListV4(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	slow, fast := spiltList(head)
+	return mergeList(sortList(slow), sortList(fast))
+}
+
+func mergeList(l1, l2 *ListNode) *ListNode {
+	dummy := new(ListNode)
+	cur := dummy
+	for l1 != nil || l2 != nil {
+		if (l1 == nil) || (l2 != nil && l2.Val < l1.Val) {
+			cur.Next = l2
+			l2 = l2.Next
+		} else {
+			cur.Next = l1
+			l1 = l1.Next
+		}
+		cur = cur.Next
+	}
+	return dummy.Next
+
+}
+
+func spiltList(l *ListNode) (*ListNode, *ListNode) {
+	slow, fast := l, l.Next
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+	rightHead := slow.Next
+	slow.Next = nil
+	return l, rightHead
 }
 
 // 150. Evaluate Reverse Polish Notation
@@ -3199,6 +3955,24 @@ func biSearchIdx(incNums []int, target, start, incLth int) int {
 	return start
 }
 
+func lengthOfLISV3(nums []int) int {
+	dp := make([]int, len(nums))
+	maxL := 1
+	for i := 0; i < len(nums); i++ {
+		dp[i] = 1
+		for j := 0; j < i; j++ {
+			if nums[i] > nums[j] {
+				dp[i] = max(dp[i], dp[j]+1)
+			}
+
+		}
+		if dp[i] > maxL {
+			maxL = dp[i]
+		}
+	}
+	return maxL
+}
+
 // 674. Longest Continuous Increasing Subsequence
 func findLengthOfLCIS(nums []int) int {
 	dp := make([]int, len(nums))
@@ -3274,6 +4048,68 @@ func fractionToDecimal(numerator int, denominator int) string {
 
 }
 
+func fractionToDecimalV2(numerator int, denominator int) string {
+	if numerator == 0 {
+		return "0"
+	}
+	sign := 1
+	nSign := 1
+	if numerator < 0 {
+		nSign = 0
+		numerator *= -1
+	}
+	dSign := 1
+	if denominator < 0 {
+		denominator *= -1
+		dSign = 0
+	}
+
+	if nSign^dSign == 1 {
+		sign = -1
+	}
+
+	remain := numerator % denominator
+	integerNum := numerator / denominator
+	var numsList []int
+	numsList = append(numsList, integerNum)
+	remain2index := make(map[int]int)
+	index := 1
+	cycleIndex := 0
+	for remain != 0 {
+		remain *= 10
+		if i, ok := remain2index[remain]; !ok {
+			remain2index[remain] = index
+			num := remain / denominator
+			numsList = append(numsList, num)
+			remain %= denominator
+			index++
+		} else {
+			cycleIndex = i
+			break
+		}
+	}
+
+	var sb strings.Builder
+	if sign == -1 {
+		sb.WriteString("-")
+	}
+	for i := 0; i < len(numsList); i++ {
+		if i == 1 {
+			sb.WriteString(".")
+		}
+		if cycleIndex > 0 && i == cycleIndex {
+			sb.WriteString("(")
+		}
+		sb.WriteString(strconv.Itoa(numsList[i]))
+	}
+
+	if cycleIndex > 0 {
+		sb.WriteString(")")
+	}
+
+	return sb.String()
+}
+
 // 172. Factorial Trailing Zeroes
 func trailingZeroes(n int) int {
 	res := 0
@@ -3315,6 +4151,19 @@ func rotateArr(nums []int, k int) {
 	help(nums, 0, lth-1)
 	help(nums, 0, k-1)
 	help(nums, k, lth-1)
+
+}
+
+func rotateArrV2(nums []int, k int) {
+	lth := len(nums)
+	k %= lth
+	for i := 1; i <= k; i++ {
+		tmp := nums[len(nums)-1]
+		for j := len(nums) - 1; j > 0; j-- {
+			nums[j] = nums[j-1]
+		}
+		nums[0] = tmp
+	}
 
 }
 

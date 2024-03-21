@@ -994,7 +994,6 @@ func moveZeroes(nums []int) {
 }
 
 // 326. Power of Three
-
 func isPowerOfThree(n int) bool {
 	acc := 1
 	for {
@@ -2281,18 +2280,21 @@ func getMaxLen(nums []int) int {
 		if num == 0 {
 			positive, negative, negativeCnt = i, -1, 0
 		}
+		//首个奇数的位置
 		if num < 0 {
 			negativeCnt++
 			if negative == -1 {
 				negative = i
 			}
 		}
+		//偶数个负数
 		if negativeCnt&1 == 0 {
 			tmp := i - positive
 			if tmp > max {
 				max = tmp
 			}
 		} else {
+			//奇数个负数
 			tmp := i - negative
 			if tmp > max {
 				max = tmp
@@ -2300,6 +2302,41 @@ func getMaxLen(nums []int) int {
 		}
 	}
 	return max
+}
+
+func getMaxLenV2(nums []int) int {
+	positive := make([]int, len(nums))
+	negative := make([]int, len(nums))
+	if nums[0] > 0 {
+		positive[0] = 1
+	}
+	if nums[0] < 0 {
+		negative[0] = 1
+	}
+	maxL := positive[0]
+	for i := 1; i < len(nums); i++ {
+		if nums[i] > 0 {
+			positive[i] = positive[i-1] + 1
+			if negative[i-1] == 0 {
+				negative[i] = 0
+			} else {
+				negative[i] = negative[i-1] + 1
+			}
+
+		} else if nums[i] < 0 {
+			if negative[i-1] == 0 {
+				positive[i] = 0
+			} else {
+				positive[i] = negative[i-1] + 1
+			}
+			negative[i] = positive[i-1] + 1
+		} else {
+			positive[i], negative[i] = 0, 0
+		}
+		maxL = max(maxL, positive[i])
+
+	}
+	return maxL
 }
 
 type Dsu struct {
