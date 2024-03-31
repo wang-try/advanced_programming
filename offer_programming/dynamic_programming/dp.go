@@ -795,9 +795,6 @@ func coinChange(coins []int, amount int) int {
 
 func coinChangeV2(coins []int, amount int) int {
 	dp := make([]int, amount+1)
-	for i := 0; i <= amount; i++ {
-		dp[i] = amount + 1
-	}
 	dp[0] = 0
 	for i := 1; i <= amount; i++ {
 		dp[i] = amount + 1
@@ -819,7 +816,7 @@ func coinChangeV2(coins []int, amount int) int {
 例如，输入数组[1，2，3]，目标值t为3，那么总共有4个组合的数字之和等于3，它们分别为{1，1，1}、{1，2}、{2，1}及{3}。
 */
 
-func combinationSum4(nums []int, target int) int {
+func combinationSum(nums []int, target int) int {
 	dp := make([]int, target+1)
 	dp[0] = 1
 	for i := 1; i <= target; i++ {

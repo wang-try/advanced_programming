@@ -2919,6 +2919,28 @@ func zigzagLevelOrderHelp(root *TreeNode, level int, res [][]int) [][]int {
 	return res
 }
 
+func zigzagLevelOrderV3(root *TreeNode) [][]int {
+	var ret [][]int
+	var dfs func(node *TreeNode, level int)
+	dfs = func(node *TreeNode, level int) {
+		if node == nil {
+			return
+		}
+		if len(ret) < level+1 {
+			ret = append(ret, []int{})
+		}
+		if level&1 == 1 {
+			ret[level] = append([]int{node.Val}, ret[level]...)
+		} else {
+			ret[level] = append(ret[level], node.Val)
+		}
+		dfs(node.Left, level+1)
+		dfs(node.Right, level+1)
+	}
+	dfs(root, 0)
+	return ret
+}
+
 // 105. Construct Binary Tree from Preorder and Inorder Traversal
 func buildTree(preorder []int, inorder []int) *TreeNode {
 	if len(preorder) == 0 {
@@ -3264,6 +3286,47 @@ func solveV2(board [][]byte) {
 			}
 		}
 	}
+}
+
+func solveV3(board [][]byte) {
+	row := len(board)
+	column := len(board[0])
+
+	var dfs func(i, j int)
+	dfs = func(i, j int) {
+		if i < 0 || j < 0 || i >= row || j >= column {
+			return
+		}
+		if board[i][j] == 'O' {
+			board[i][j] = '#'
+			dfs(i-1, j)
+			dfs(i+1, j)
+			dfs(i, j-1)
+			dfs(i, j+1)
+		}
+
+	}
+
+	for i := 0; i < row; i++ {
+		for j := 0; j < column; j++ {
+			if i == 0 || j == 0 || j == column-1 || i == row-1 {
+				if board[i][j] == 'O' {
+					dfs(i, j)
+				}
+			}
+		}
+	}
+
+	for i := 0; i < row; i++ {
+		for j := 0; j < column; j++ {
+			if board[i][j] == '#' {
+				board[i][j] = 'O'
+			} else if board[i][j] == 'O' {
+				board[i][j] = 'X'
+			}
+		}
+	}
+
 }
 
 // 131. Palindrome Partitioning
@@ -4368,6 +4431,34 @@ func dfsIsLands(grid [][]byte, i, j int, visited []bool) {
 		dfsIsLands(grid, i, j+1, visited)
 	}
 
+}
+
+func numIslandsV3(grid [][]byte) int {
+	row := len(grid)
+	column := len(grid[0])
+	var dfs func(i, j int)
+	dfs = func(i, j int) {
+		if i < 0 || j < 0 || i >= row || j >= column {
+			return
+		}
+		if grid[i][j] == '1' {
+			grid[i][j] = 'X'
+			dfs(i+1, j)
+			dfs(i-1, j)
+			dfs(i, j+1)
+			dfs(i, j-1)
+		}
+	}
+	var cnt int
+	for i := 0; i < row; i++ {
+		for j := 0; j < column; j++ {
+			if grid[i][j] == '1' {
+				cnt++
+				dfs(i, j)
+			}
+		}
+	}
+	return cnt
 }
 
 func countPrimes(n int) int {

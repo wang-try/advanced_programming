@@ -139,17 +139,17 @@ func MinWindow(s, t string) string {
 	for i := 0; i < len(t); i++ {
 		hash[t[i]]++
 	}
-	start := 0
-	for ; start < len(s); start++ {
-		if hash[s[start]] > 0 {
-			break
-		}
-	}
-	if start == len(s) {
-		return ""
-	}
-	lhs := start
-	rhs := start
+	//start := 0
+	//for ; start < len(s); start++ {
+	//	if hash[s[start]] > 0 {
+	//		break
+	//	}
+	//}
+	//if start == len(s) {
+	//	return ""
+	//}
+	lhs := 0
+	rhs := 0
 	ret := ""
 	for rhs < len(s) {
 		if _, ok := hash[s[rhs]]; ok {

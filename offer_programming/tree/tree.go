@@ -76,39 +76,19 @@ func PostOrderTreeIteration(root *TreeNode) []int {
 	cur := root
 	var prev *TreeNode = nil
 	for cur != nil || len(stack) > 0 {
+		//左子树入栈
 		for cur != nil {
 			stack = append(stack, cur)
 			cur = cur.Left
 		}
 		cur = stack[len(stack)-1]
+		//当前节点右子树不为空，且没有遍历过
 		if cur.Right != nil && cur.Right != prev {
 			cur = cur.Right
 		} else {
+			//当期右子树为空，或者遍历过，次节点出栈，并且打印
 			stack = stack[:len(stack)-1]
 			ret = append(ret, cur.Val)
-			prev = cur
-			cur = nil
-		}
-	}
-	return ret
-}
-
-func PostOrderTreeIterationReCode(root *TreeNode) []int {
-	var ret []int
-	cur := root
-	var stack []*TreeNode
-	var prev *TreeNode = nil
-	for cur != nil || len(stack) > 0 {
-		for cur != nil {
-			stack = append(stack, cur)
-			cur = cur.Left
-		}
-		cur = stack[len(stack)-1]
-		if cur.Right != nil && cur != prev {
-			cur = cur.Right
-		} else {
-			ret = append(ret, cur.Val)
-			stack = stack[:len(stack)-1]
 			prev = cur
 			cur = nil
 		}
