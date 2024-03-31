@@ -634,7 +634,7 @@ func isAllContain(ch2cnt map[uint8]int) bool {
 	return true
 }
 
-// leetcode316 去除重复字母
+// leetcode316 去除重复字母 ???
 func removeDuplicateLetters(s string) string {
 	left := [26]int{}
 	for _, ch := range s {
@@ -659,4 +659,35 @@ func removeDuplicateLetters(s string) string {
 		left[ch-'a']--
 	}
 	return string(stack)
+}
+
+// LCR 039 柱状图中最大的矩形
+func largestRectangleArea(heights []int) int {
+	var stack []int
+	maxArea := 0
+	for i, height := range heights {
+		j := len(stack) - 1
+		for ; j >= 0 && height < heights[stack[j]]; j-- {
+			h := heights[stack[j]]
+			var width int
+			if j == 0 {
+				width = i - (0 - 1) - 1
+			} else {
+				width = i - stack[j-1] - 1
+			}
+			maxArea = max(maxArea, h*width)
+			stack = stack[:len(stack)-1]
+		}
+		stack = append(stack, i)
+	}
+
+	rhs := len(heights)
+	for i := len(stack) - 1; i >= 0; i-- {
+		lhs := -1
+		if i > 0 {
+			lhs = stack[i-1]
+		}
+		maxArea = max(maxArea, heights[stack[i]]*(rhs-lhs-1))
+	}
+	return maxArea
 }
