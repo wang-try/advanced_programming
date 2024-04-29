@@ -518,7 +518,7 @@ func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 	return dp[row-1][column-1]
 }
 
-// leetcode 最小路径和
+// leetcode64 最小路径和
 func minPathSum(grid [][]int) int {
 	m := len(grid)
 	n := len(grid[0])
@@ -645,8 +645,10 @@ func removeDuplicateLetters(s string) string {
 	for i := range s {
 		ch := s[i]
 		if !inStack[ch-'a'] {
+			//如果当前栈不为空，且当前的字母比栈顶的字母小，可以将栈顶的字母出栈
 			for len(stack) > 0 && ch < stack[len(stack)-1] {
 				last := stack[len(stack)-1] - 'a'
+				//如果该字母已经全部遍历过，退出循环，后续无法再进入栈中，所以此字母无法出栈
 				if left[last] == 0 {
 					break
 				}

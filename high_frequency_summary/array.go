@@ -1,6 +1,7 @@
 package high_frequency_summary
 
 import (
+	"container/heap"
 	"math"
 	"sort"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 
 //数 & 数组 & 矩形 & 指针
 
+// leetcode 84
 func largestRectangleAreaV2(heights []int) int {
 	var stack []int
 	lr := 0
@@ -115,7 +117,7 @@ func search(nums []int, target int) int {
 	return -1
 }
 
-// leetcode 轮转数组
+// leetcode 189 轮转数组
 func rotate(nums []int, k int) {
 	k %= len(nums)
 	reverse(nums, 0, len(nums)-1)
@@ -182,25 +184,36 @@ func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 	} else {
 		return float64(find(nums1, 0, nums2, 0, tot/2+1))
 	}
-
 }
 
+// i,j分别表示计算到nums1和nums2中的哪个元素了，k表示第几小的元素
 func find(nums1 []int, i int, nums2 []int, j int, k int) int {
 	if len(nums1)-i > len(nums2)-j {
 		return find(nums2, j, nums1, i, k)
 	}
+
+	//num1的长度小于nums2
 	if k == 1 {
+		//nums1 中已经没有可以算的元素了
 		if i == len(nums1) {
+			//返回当前nums2中最小的元素
 			return nums2[j]
 		} else {
+			//选取nums1和nums2中最小的
 			return min(nums1[i], nums2[j])
 		}
 	}
+
+	//nums1 中已经没有可以算的元素了
 	if i == len(nums1) {
+		//返回当前nums2中最小的元素
 		return nums2[j+k-1]
 	}
+
+	//折半计算nums1和nums2中的元素
 	si := min(len(nums1), i+k/2)
 	sj := j + k/2
+	//哪个小选哪个
 	if nums1[si-1] < nums2[sj-1] {
 		return find(nums1, si, nums2, j, k-(si-i))
 	} else {
@@ -208,6 +221,43 @@ func find(nums1 []int, i int, nums2 []int, j int, k int) int {
 	}
 }
 
+func findMedianSortedArraysV2(nums1 []int, nums2 []int) float64 {
+	total := len(nums1) + len(nums2)
+	mid1Pos, mid2Pos := total/2, total/2+1
+	i, j := 0, 0
+	lth1, lth2 := len(nums1), len(nums2)
+	iter := 0
+	mid1, mid2 := 0, 0
+	for (i < lth1 || j < lth2) && iter < mid2Pos {
+		if i == lth1 || j < lth2 && nums1[i] > nums2[j] {
+			iter++
+			if iter == mid1Pos {
+				mid1 = nums2[j]
+			}
+			if iter == mid2Pos {
+				mid2 = nums2[j]
+			}
+			j++
+		} else {
+
+			iter++
+			if iter == mid1Pos {
+				mid1 = nums1[i]
+			}
+			if iter == mid2Pos {
+				mid2 = nums1[i]
+			}
+			i++
+		}
+	}
+	if total&1 == 0 {
+		return float64(mid1+mid2) / 2.0
+	} else {
+		return float64(mid2)
+	}
+}
+
+// leetcode 41
 func firstMissingPositive(nums []int) int {
 	lth := len(nums)
 	index := 0
@@ -501,24 +551,6 @@ func removeDuplicates(nums []int) int {
 	return iterIndex + 1
 }
 
-func permuteV2(nums []int) [][]int {
-	var ret [][]int
-	var dfs func(index int, nums []int)
-	dfs = func(index int, nums []int) {
-		if index == len(nums) {
-			ret = append(ret, append([]int{}, nums...))
-			return
-		}
-		for i := index; i < len(nums); i++ {
-			nums[i], nums[index] = nums[index], nums[i]
-			dfs(index+1, nums)
-			nums[i], nums[index] = nums[index], nums[i]
-		}
-	}
-	dfs(0, nums)
-	return ret
-}
-
 // leetcode287 寻找重复数
 func findDuplicate(nums []int) int {
 	index := 0
@@ -638,6 +670,39 @@ func splitIntoFibonacci(num string) []int {
 
 }
 
+func splitIntoFibonacciV2(num string) []int {
+	var ret []int
+	var dfs func(index int, ans []int)
+	dfs = func(index int, ans []int) {
+		if len(ret) > 0 {
+			return
+		}
+		if index == len(num) && len(ans) >= 3 {
+			ret = append([]int{}, ans...)
+			return
+		}
+		for i := index; i < len(num) && len(ret) == 0; i++ {
+			s := num[index : i+1]
+			n, _ := strconv.Atoi(s)
+			if n > math.MaxInt32 {
+				break
+			}
+			if len(ans) < 2 || (len(ans) >= 2 && n == ans[len(ans)-1]+ans[len(ans)-2]) {
+				ans = append(ans, n)
+				dfs(i+1, ans)
+				ans = ans[:len(ans)-1]
+			}
+			if s == "0" {
+				break
+			}
+		}
+	}
+
+	dfs(0, []int{})
+	return ret
+
+}
+
 // leetcode209. 长度最小的子数组
 func minSubArrayLen(target int, nums []int) int {
 	subM := 0
@@ -650,8 +715,8 @@ func minSubArrayLen(target int, nums []int) int {
 				sum -= nums[lhs]
 				lhs++
 			}
-			if subM == 0 || rhs-lhs-1+1 < subM {
-				subM = rhs - lhs - 1 + 1
+			if subM == 0 || rhs-lhs+1 < subM {
+				subM = rhs - lhs + 1
 			}
 		}
 		rhs++
@@ -715,6 +780,10 @@ func largestNumber(nums []int) string {
 	sort.Slice(strList, func(i, j int) bool {
 		return strList[i]+strList[j] > strList[j]+strList[i]
 	})
+
+	if strList[0] == "0" {
+		return "0"
+	}
 	return strings.Join(strList, "")
 }
 
@@ -805,9 +874,572 @@ func trap(height []int) int {
 	contain := 0
 	var stack []int
 	for i, h := range height {
-		for len(stack) > 0 && h < height[stack[len(stack)-1]] {
-
+		for len(stack) > 0 && h > height[stack[len(stack)-1]] {
+			if len(stack) >= 2 {
+				top := stack[len(stack)-1]
+				left := stack[len(stack)-2]
+				hei := min(h, height[left]) - height[top]
+				width := i - left - 1
+				contain += hei * width
+			}
+			stack = stack[:len(stack)-1]
 		}
 		stack = append(stack, i)
 	}
+	return contain
+}
+
+// leetcode153  旋转数组中的最小数字
+func findMin(nums []int) int {
+	low, high := 0, len(nums)-1
+	for low < high {
+		pivot := low + (high-low)/2
+		if nums[pivot] < nums[high] {
+			high = pivot
+		} else {
+			low = pivot + 1
+		}
+	}
+	return nums[low]
+}
+
+// leetcode154 旋转数组中的最小数字II
+func findMinII(nums []int) int {
+	lhs := 0
+	rhs := len(nums) - 1
+	for lhs < rhs {
+		mid := (lhs + rhs) / 2
+		if nums[mid] < nums[rhs] {
+			rhs = mid
+		} else if nums[mid] > nums[rhs] {
+			lhs = mid + 1
+		} else {
+			rhs--
+		}
+	}
+	return nums[lhs]
+}
+
+// leetcode 240 搜索二维矩阵
+func searchMatrix(matrix [][]int, target int) bool {
+	i := len(matrix) - 1
+	j := 0
+	for i >= 0 && i < len(matrix) && j >= 0 && j < len(matrix[0]) {
+		if target == matrix[i][j] {
+			return true
+		} else if target > matrix[i][j] {
+			j++
+		} else {
+			i--
+		}
+	}
+	return false
+}
+
+// leetcode569 和为k的子数组
+func subarraySum(nums []int, k int) int {
+	sum2cnt := make(map[int]int)
+	sum2cnt[0] = 1
+	sum := 0
+	cnt := 0
+	for _, num := range nums {
+		sum += num
+		cnt += sum2cnt[sum-k]
+		sum2cnt[sum]++
+	}
+	return cnt
+}
+
+// leetcode 9. 回文数
+func isPalindrome(x int) bool {
+	if x < 0 {
+		return false
+	}
+
+	str := strconv.Itoa(x)
+	lhs := 0
+	rhs := len(str) - 1
+	for lhs <= rhs {
+		if str[lhs] != str[rhs] {
+			return false
+		}
+		lhs++
+		rhs--
+	}
+	return true
+}
+
+func isPalindromeV2(x int) bool {
+	// 特殊情况：
+	// 如上所述，当 x < 0 时，x 不是回文数。
+	// 同样地，如果数字的最后一位是 0，为了使该数字为回文，
+	// 则其第一位数字也应该是 0
+	// 只有 0 满足这一属性
+	if x < 0 || (x%10 == 0 && x != 0) {
+		return false
+	}
+
+	revertedNumber := 0
+	for x > revertedNumber {
+		revertedNumber = revertedNumber*10 + x%10
+		x /= 10
+	}
+
+	// 当数字长度为奇数时，我们可以通过 revertedNumber/10 去除处于中位的数字。
+	// 例如，当输入为 12321 时，在 while 循环的末尾我们可以得到 x = 12，revertedNumber = 123，
+	// 由于处于中位的数字不影响回文（它总是与自己相等），所以我们可以简单地将其去除。
+	return x == revertedNumber || x == revertedNumber/10
+}
+
+// leetcode 862. 和至少为 K 的最短子数组
+func shortestSubarray(nums []int, k int) int {
+	lth := len(nums)
+	preSum := make([]int, lth+1)
+	for i := 0; i < len(nums); i++ {
+		preSum[i+1] = preSum[i] + nums[i]
+	}
+	ans := lth + 1
+	var queue []int
+	for i, sum := range preSum {
+		for len(queue) > 0 && sum-preSum[queue[0]] >= k {
+			ans = min(ans, i-queue[0])
+			queue = queue[1:]
+		}
+
+		for len(queue) > 0 && sum < preSum[queue[len(queue)-1]] {
+			queue = queue[:len(queue)-1]
+		}
+		queue = append(queue, i)
+	}
+	if ans < lth+1 {
+		return ans
+	}
+	return -1
+}
+
+// leetcode 349. 两个数组的交集
+func intersection(nums1 []int, nums2 []int) []int {
+	var ans []int
+	num12exist := make(map[int]bool)
+	for _, num := range nums1 {
+		num12exist[num] = true
+	}
+
+	a2exist := make(map[int]bool)
+	for _, num := range nums2 {
+		if _, ok := num12exist[num]; ok && !a2exist[num] {
+			ans = append(ans, num)
+			a2exist[num] = true
+		}
+	}
+	return ans
+}
+
+// leetcode 350. 两个数组的交集 II
+func intersect(nums1 []int, nums2 []int) []int {
+	var ans []int
+	num2cnt := make(map[int]int)
+	for _, num := range nums1 {
+		num2cnt[num]++
+	}
+
+	for _, num := range nums2 {
+		if cnt, ok := num2cnt[num]; ok && cnt > 0 {
+			ans = append(ans, num)
+			num2cnt[num]--
+		}
+	}
+	return ans
+}
+
+// leetcode31 下一个排列
+func nextPermutation(nums []int) {
+	splitIndex := len(nums) - 2
+	for splitIndex >= 0 && nums[splitIndex] >= nums[splitIndex+1] {
+		splitIndex--
+	}
+
+	if splitIndex >= 0 {
+		for index := len(nums) - 1; index > splitIndex; index-- {
+			if nums[index] > nums[splitIndex] {
+				nums[index], nums[splitIndex] = nums[splitIndex], nums[index]
+				break
+			}
+		}
+	}
+
+	lhs := splitIndex + 1
+	rhs := len(nums) - 1
+	for lhs < rhs {
+		nums[lhs], nums[rhs] = nums[rhs], nums[lhs]
+		lhs++
+		rhs--
+	}
+}
+
+// leetcode 503. 下一个更大元素 II
+func nextGreaterElements(nums []int) []int {
+	n := len(nums)
+	ans := make([]int, n)
+	for i := range ans {
+		ans[i] = -1
+	}
+	var stack []int
+	for i := 0; i < n*2-1; i++ {
+		for len(stack) > 0 && nums[stack[len(stack)-1]] < nums[i%n] {
+			ans[stack[len(stack)-1]] = nums[i%n]
+			stack = stack[:len(stack)-1]
+		}
+		stack = append(stack, i%n)
+	}
+	return ans
+}
+
+// leetcode239. 滑动窗口最大值
+func maxSlidingWindow(nums []int, k int) []int {
+	var stack []int
+	for i := 0; i < k; i++ {
+		for len(stack) > 0 && nums[i] > nums[stack[len(stack)-1]] {
+			stack = stack[:len(stack)-1]
+		}
+		stack = append(stack, i)
+	}
+	var ans []int
+	ans = append(ans, nums[stack[0]])
+	for i := k; i < len(nums); i++ {
+		for len(stack) > 0 && nums[i] > nums[stack[len(stack)-1]] {
+			stack = stack[:len(stack)-1]
+		}
+		stack = append(stack, i)
+		if stack[0] == i-k {
+			stack = stack[1:]
+		}
+		ans = append(ans, nums[stack[0]])
+	}
+	return ans
+}
+
+// ？？？放弃 TODO
+// leetcode 480. 滑动窗口中位数
+type hp struct {
+	sort.IntSlice
+	size int
+}
+
+func (h *hp) Push(v interface{}) {
+	h.IntSlice = append(h.IntSlice, v.(int))
+}
+func (h *hp) Pop() interface{} {
+	a := h.IntSlice
+	v := a[len(a)-1]
+	h.IntSlice = a[:len(a)-1]
+	return v
+}
+func (h *hp) push(v int) {
+	h.size++
+	heap.Push(h, v)
+}
+func (h *hp) pop() int {
+	h.size--
+	return heap.Pop(h).(int)
+}
+func (h *hp) prune() {
+	for h.Len() > 0 {
+		num := h.IntSlice[0]
+		if h == small {
+			num = -num
+		}
+		if d, has := delayed[num]; has {
+			if d > 1 {
+				delayed[num]--
+			} else {
+				delete(delayed, num)
+			}
+			heap.Pop(h)
+		} else {
+			break
+		}
+	}
+}
+
+var delayed map[int]int
+var small, large *hp
+
+func medianSlidingWindow(nums []int, k int) []float64 {
+	delayed = map[int]int{} // 哈希表，记录「延迟删除」的元素，key 为元素，value 为需要删除的次数
+	small = &hp{}           // 大根堆，维护较小的一半元素
+	large = &hp{}           // 小根堆，维护较大的一半元素
+	makeBalance := func() {
+		// 调整 small 和 large 中的元素个数，使得二者的元素个数满足要求
+		if small.size > large.size+1 { // small 比 large 元素多 2 个
+			large.push(-small.pop())
+			small.prune() // small 堆顶元素被移除，需要进行 prune
+		} else if small.size < large.size { // large 比 small 元素多 1 个
+			small.push(-large.pop())
+			large.prune() // large 堆顶元素被移除，需要进行 prune
+		}
+	}
+	insert := func(num int) {
+		if small.Len() == 0 || num <= -small.IntSlice[0] {
+			small.push(-num)
+		} else {
+			large.push(num)
+		}
+		makeBalance()
+	}
+	erase := func(num int) {
+		delayed[num]++
+		if num <= -small.IntSlice[0] {
+			small.size--
+			if num == -small.IntSlice[0] {
+				small.prune()
+			}
+		} else {
+			large.size--
+			if num == large.IntSlice[0] {
+				large.prune()
+			}
+		}
+		makeBalance()
+	}
+	getMedian := func() float64 {
+		if k&1 > 0 {
+			return float64(-small.IntSlice[0])
+		}
+		return float64(-small.IntSlice[0]+large.IntSlice[0]) / 2
+	}
+
+	for _, num := range nums[:k] {
+		insert(num)
+	}
+	n := len(nums)
+	ans := make([]float64, 1, n-k+1)
+	ans[0] = getMedian()
+	for i := k; i < n; i++ {
+		insert(nums[i])
+		erase(nums[i-k])
+		ans = append(ans, getMedian())
+	}
+	return ans
+}
+
+// TODO leetcode LCR 160. 数据流中的中位数
+type MedianFinder struct {
+}
+
+/** initialize your data structure here. */
+func Constructor() MedianFinder {
+	return MedianFinder{}
+}
+
+func (this *MedianFinder) AddNum(num int) {
+
+}
+
+func (this *MedianFinder) FindMedian() float64 {
+	return 0
+}
+
+// leetcode977. 有序数组的平方
+func sortedSquares(nums []int) []int {
+	lhs := 0
+	rhs := len(nums) - 1
+	ans := make([]int, len(nums))
+	iterIndex := len(nums) - 1
+	for lhs <= rhs {
+		num := 0
+		if nums[lhs] < 0 && -nums[lhs] > nums[rhs] {
+			num = nums[lhs] * nums[lhs]
+			lhs++
+		} else {
+			num = nums[rhs] * nums[rhs]
+			rhs--
+		}
+		ans[iterIndex] = num
+		iterIndex--
+	}
+	return ans
+}
+
+// leetcode69. x 的平方根
+func mySqrt(x int) int {
+	lhs := 0
+	rhs := x
+	for lhs <= rhs {
+		mid := (lhs + rhs) / 2
+		if mid*mid == x {
+			return mid
+		} else if mid*mid < x {
+			lhs = mid + 1
+		} else if mid*mid > x {
+			if (mid-1)*(mid-1) < x {
+				return mid - 1
+			} else {
+				rhs = mid - 1
+			}
+		}
+	}
+	return -1
+}
+
+// leetcode LCR 164. 破解闯关密码
+func crackPassword(password []int) string {
+	var list []string
+	for _, num := range password {
+		list = append(list, strconv.Itoa(num))
+	}
+	sort.Slice(list, func(i, j int) bool {
+		return list[i]+list[j] < list[j]+list[i]
+	})
+	return strings.Join(list, "")
+}
+
+// leetcode562. 矩阵中最长的连续1线段
+func longestLine(mat [][]int) int {
+	maxL := 0
+	dp := make([][][]int, 4)
+	for i := 0; i < 4; i++ {
+		dp[i] = make([][]int, len(mat))
+		for j := 0; j < len(mat); j++ {
+			dp[i][j] = make([]int, len(mat[0]))
+		}
+	}
+
+	for i := 0; i < len(mat); i++ {
+		for j := 0; j < len(mat[0]); j++ {
+			if mat[i][j] == 1 {
+				//行
+				dp[0][i][j] = 1
+				//竖
+				dp[1][i][j] = 1
+				//斜
+				dp[2][i][j] = 1
+				//反斜
+				dp[3][i][j] = 1
+				if j > 0 {
+					dp[0][i][j] = dp[0][i][j-1] + 1
+				}
+
+				if i > 0 {
+					dp[1][i][j] = dp[1][i-1][j] + 1
+				}
+
+				if i > 0 && j > 0 {
+					dp[2][i][j] = dp[2][i-1][j-1] + 1
+				}
+
+				if i > 0 && j < len(mat[0])-1 {
+					dp[3][i][j] = dp[3][i-1][j+1] + 1
+				}
+				a := max(dp[0][i][j], dp[1][i][j])
+				b := max(dp[2][i][j], dp[3][i][j])
+				m := max(a, b)
+				maxL = max(maxL, m)
+			}
+		}
+
+	}
+
+	return maxL
+}
+
+// leetcode40. 组合总和 II
+func combinationSum2(candidates []int, target int) [][]int {
+	var ans [][]int
+	var dfs func(index, sum int, base []int)
+
+	dfs = func(index, sum int, base []int) {
+		if sum == target {
+			ans = append(ans, append([]int{}, base...))
+			return
+		}
+		for i := index; i < len(candidates); i++ {
+			if sum > target {
+				break
+			}
+			if i > index && candidates[i] == candidates[i-1] {
+				continue
+			}
+			sum += candidates[i]
+			base = append(base, candidates[i])
+			dfs(i+1, sum, base)
+			sum -= candidates[i]
+			base = base[:len(base)-1]
+		}
+
+	}
+	sort.Ints(candidates)
+	dfs(0, 0, []int{})
+
+	return ans
+}
+
+// leetcode560. 和为 K 的子数组
+func subarraySumII(nums []int, k int) int {
+	sum2cnt := make(map[int]int)
+	sum2cnt[0] = 1
+	sum := 0
+	cnt := 0
+	for _, num := range nums {
+		sum += num
+		//cnt语句要在sum2cnt前面
+		cnt += sum2cnt[sum-k]
+		sum2cnt[sum]++
+	}
+	return cnt
+}
+
+func findDuplicates(nums []int) []int {
+	var ans []int
+	index := 0
+	for index < len(nums) {
+		if nums[index] > 0 {
+			if nums[index] != index+1 {
+				num := nums[index]
+				pos := num - 1
+				if nums[pos] == num {
+					ans = append(ans, num)
+					nums[index] = 0
+				} else {
+					nums[index], nums[pos] = nums[pos], nums[index]
+				}
+			} else {
+				index++
+			}
+		} else {
+			index++
+		}
+	}
+	return ans
+}
+
+func findDuplicatesV2(nums []int) (ans []int) {
+	for i := range nums {
+		for nums[i] != nums[nums[i]-1] {
+			nums[i], nums[nums[i]-1] = nums[nums[i]-1], nums[i]
+		}
+	}
+	for i, num := range nums {
+		if num-1 != i {
+			ans = append(ans, num)
+		}
+	}
+	return
+}
+
+// leetcode LCR 139. 训练计划 I
+func trainingPlan(actions []int) []int {
+	lhs := 0
+	rhs := len(actions) - 1
+	index := 0
+	for lhs <= rhs {
+		if actions[index]&1 == 0 {
+			actions[index], actions[rhs] = actions[rhs], actions[index]
+			rhs--
+		} else {
+			index++
+			lhs++
+		}
+	}
+	return actions
 }

@@ -753,6 +753,11 @@ func findTargetSumWays(nums []int, target int) int {
 	if (sum+target)%2 == 1 || sum < target {
 		return 0
 	}
+
+	if (sum+target)/2 < 0 {
+		return 0
+	}
+
 	return subSetSum(nums, (sum+target)/2)
 
 }

@@ -40,3 +40,19 @@ func TestFindPeakElement(t *testing.T) {
 func TestSubSets(t *testing.T) {
 	fmt.Println(subsets([]int{1, 2, 3}))
 }
+
+func TestNextGreaterElements(t *testing.T) {
+	fmt.Println(nextGreaterElements([]int{2, 3, 1}))
+}
+
+func TestCrackPassword(t *testing.T) {
+	fmt.Println(crackPassword([]int{0, 3, 30, 34, 5, 9}))
+}
+
+func TestLongestLine(t *testing.T) {
+	fmt.Println(longestLine([][]int{{}, {}}))
+}
+
+func TestCombinationSum2(t *testing.T) {
+	fmt.Println(combinationSum2([]int{10, 1, 2, 7, 6, 1, 5}, 8))
+}
