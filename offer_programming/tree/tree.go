@@ -191,7 +191,7 @@ func pathSum(root *TreeNode, targetSum int) int {
 	return dfsPathSum(root, targetSum, amap, 0)
 }
 
-// 不懂
+// 前缀和
 func dfsPathSum(root *TreeNode, targetSum int, amap map[int]int, path int) int {
 	if root == nil {
 		return 0
@@ -202,7 +202,7 @@ func dfsPathSum(root *TreeNode, targetSum int, amap map[int]int, path int) int {
 	amap[path] += 1
 	count += dfsPathSum(root.Left, targetSum, amap, path)
 	count += dfsPathSum(root.Right, targetSum, amap, path)
-	//函数结束时，程序将回到节点的父节点，所以要在函数结束之前将当期节点从路径中删除
+	//函数结束时，程序将回到节点的父节点，所以要在函数结束之前将当前节点从路径中删除
 	amap[path] -= 1
 	return count
 }
