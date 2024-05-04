@@ -361,3 +361,148 @@ func (c *LFUCache) Put(key, value int) {
 	c.pushFront(&entry{key, value, 1}) // 新书放在「看过 1 次」的最上面
 	c.minFreq = 1
 }
+
+type LFUCacheV2 struct {
+	cache    map[int]*node
+	freqMap  map[int]*listN
+	minFreq  int
+	capacity int
+}
+
+func ConstructorV2(capacity int) LFUCacheV2 {
+	return LFUCacheV2{
+		cache:    make(map[int]*node),
+		freqMap:  make(map[int]*listN),
+		capacity: capacity,
+	}
+}
+
+func (this *LFUCacheV2) Get(key int) int {
+	if this.capacity == 0 {
+		return -1
+	}
+
+	n, ok := this.cache[key]
+	if !ok {
+		return -1
+	}
+
+	this.incrFreq(n)
+	return n.val
+}
+
+func (this *LFUCacheV2) Put(key int, value int) {
+	if this.capacity == 0 {
+		return
+	}
+
+	n, ok := this.cache[key]
+	if ok {
+		n.val = value
+		this.incrFreq(n)
+		return
+	}
+
+	if len(this.cache) == this.capacity {
+		l := this.freqMap[this.minFreq]
+		delete(this.cache, l.removeBack().key)
+	}
+	n = &node{key: key, val: value, freq: 1}
+	this.addNode(n)
+	this.cache[key] = n
+	this.minFreq = 1
+}
+
+func (this *LFUCacheV2) incrFreq(n *node) {
+	l := this.freqMap[n.freq]
+	l.remove(n)
+	if l.empty() {
+		delete(this.freqMap, n.freq)
+		if n.freq == this.minFreq {
+			this.minFreq++
+		}
+	}
+	n.freq++
+	this.addNode(n)
+}
+
+func (this *LFUCacheV2) addNode(n *node) {
+	l, ok := this.freqMap[n.freq]
+	if !ok {
+		l = newList()
+		this.freqMap[n.freq] = l
+	}
+	l.pushFront(n)
+}
+
+type node struct {
+	key  int
+	val  int
+	freq int
+	prev *node
+	next *node
+}
+
+type listN struct {
+	head *node
+	tail *node
+}
+
+func newList() *listN {
+	head := new(node)
+	tail := new(node)
+	head.next = tail
+	tail.prev = head
+	return &listN{
+		head: head,
+		tail: tail,
+	}
+}
+
+func (l *listN) pushFront(n *node) {
+	n.prev = l.head
+	n.next = l.head.next
+	l.head.next.prev = n
+	l.head.next = n
+}
+
+func (l *listN) remove(n *node) {
+	n.prev.next = n.next
+	n.next.prev = n.prev
+	n.next = nil
+	n.prev = nil
+}
+
+func (l *listN) removeBack() *node {
+	n := l.tail.prev
+	l.remove(n)
+	return n
+}
+
+func (l *listN) empty() bool {
+	return l.head.next == l.tail
+}
+
+func checkDynasty(places []int) bool {
+	d2cnt := make(map[int]int)
+	minD := 100
+	for _, place := range places {
+		d2cnt[place]++
+		if place != 0 {
+			minD = min(minD, place)
+		}
+	}
+	lth := len(places)
+	num := minD
+	for i := 1; i <= lth; i++ {
+		if _, ok := d2cnt[num]; !ok {
+			if cnt, ok := d2cnt[0]; ok && cnt > 0 {
+				d2cnt[0]--
+			} else {
+				return false
+			}
+		}
+		num++
+	}
+	return true
+}
