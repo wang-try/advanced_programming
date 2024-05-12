@@ -32,21 +32,6 @@ func climbStairs(n int) int {
 	return dp[n]
 }
 
-func biSearchIdx(incNums []int, target, incLth int) int {
-	start := 0
-	for start <= incLth {
-		mid := (incLth + start) / 2
-		if incNums[mid] > target {
-			incLth = mid - 1
-		} else if incNums[mid] < target {
-			start = mid + 1
-		} else {
-			return mid
-		}
-	}
-	return start
-}
-
 // leetcode 5 最长回文子串
 func longestPalindrome(s string) string {
 	maxPal := ""
@@ -152,6 +137,21 @@ func lengthOfLISV2(nums []int) int {
 	}
 
 	return incLth + 1
+}
+
+func biSearchIdx(incNums []int, target, incLth int) int {
+	start := 0
+	for start <= incLth {
+		mid := (incLth + start) / 2
+		if incNums[mid] > target {
+			incLth = mid - 1
+		} else if incNums[mid] < target {
+			start = mid + 1
+		} else {
+			return mid
+		}
+	}
+	return start
 }
 
 // leetcode 673 最长递增子序列的个数（可不连续）
@@ -634,7 +634,7 @@ func isAllContain(ch2cnt map[uint8]int) bool {
 	return true
 }
 
-// leetcode316 去除重复字母 ???
+// leetcode316 去除重复字母
 func removeDuplicateLetters(s string) string {
 	left := [26]int{}
 	for _, ch := range s {

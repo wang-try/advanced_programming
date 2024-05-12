@@ -4665,6 +4665,30 @@ func trap(height []int) int {
 	return res
 }
 
+// leetcode296 最佳碰头地点
+func minTotalDistance(grid [][]int) int {
+	x, y := []int{}, []int{}
+	for i := 0; i < len(grid); i++ {
+		for j := 0; j < len(grid[0]); j++ {
+			if grid[i][j] == 1 {
+				x = append(x, i)
+				y = append(y, j)
+			}
+		}
+	}
+	sort.Ints(x)
+	sort.Ints(y)
+
+	d := 0
+	for i := 0; i < len(x)/2; i++ {
+		d += x[len(x)-1-i] - x[i]
+	}
+	for i := 0; i < len(y)/2; i++ {
+		d += y[len(y)-1-i] - y[i]
+	}
+	return d
+}
+
 /**
  * Your Trie object will be instantiated and called as such:
  * obj := Constructor();

@@ -397,6 +397,36 @@ func threeSumClosest(nums []int, target int) int {
 	return ans
 }
 
+func threeSumClosestV2(nums []int, target int) int {
+	sort.Ints(nums)
+	closest := math.MaxInt
+	ans := 0
+	for i := 0; i < len(nums)-2; i++ {
+		t := target - nums[i]
+		lhs := i + 1
+		rhs := len(nums) - 1
+		for lhs < rhs {
+			sum := nums[lhs] + nums[rhs]
+			if sum == t {
+				return target
+			} else if sum > t {
+				rhs--
+				if closest > sum-t {
+					closest = sum - t
+					ans = sum + nums[i]
+				}
+			} else {
+				lhs++
+				if closest > t-sum {
+					closest = t - sum
+					ans = sum + nums[i]
+				}
+			}
+		}
+	}
+	return ans
+}
+
 // leetcode628. 三个数的最大乘积
 func maximumProduct(nums []int) int {
 	min1, min2 := math.MaxInt32, math.MaxInt32
@@ -452,6 +482,64 @@ func findClosestElements(arr []int, k int, x int) []int {
 		k--
 	}
 	return arr[lhs+1 : rhs]
+}
+
+func findClosestElementsV2(arr []int, k int, x int) []int {
+	pivot := findX(arr, x)
+	cnt := 1
+	lhs := pivot - 1
+	rhs := pivot + 1
+	for (lhs >= 0 || rhs < len(arr)) && cnt < k {
+		diff1, diff2 := math.MaxInt32, math.MaxInt32
+		if lhs >= 0 {
+			diff1 = arr[lhs] - x
+			if diff1 < 0 {
+				diff1 *= -1
+			}
+		}
+		if rhs < len(arr) {
+			diff2 = arr[rhs] - x
+			if diff2 < 0 {
+				diff2 *= -1
+			}
+		}
+		if diff1 <= diff2 {
+			lhs--
+		} else {
+			rhs++
+		}
+		cnt++
+	}
+
+	return arr[lhs+1 : rhs]
+
+}
+
+func findX(arr []int, x int) int {
+	lhs := 0
+	rhs := len(arr) - 1
+	closest := math.MaxInt32
+	ans := 0
+	for lhs <= rhs {
+		mid := (lhs + rhs) / 2
+		if arr[mid] == x {
+			return mid
+		} else if arr[mid] > x {
+			rhs = mid - 1
+			if closest > arr[mid]-x {
+				closest = arr[mid] - x
+				ans = mid
+			}
+		} else {
+			lhs = mid + 1
+			if closest >= x-arr[mid] {
+				closest = x - arr[mid]
+				ans = mid
+			}
+		}
+	}
+	return ans
+
 }
 
 // [1,2,3,4,5] 4, 3
@@ -806,18 +894,6 @@ func majorityElement(nums []int) int {
 	return candidate
 }
 
-// leetcode53 最大子数组和
-func maxSubArrayV2(nums []int) int {
-	dp := make([]int, len(nums))
-	maxSub := nums[0]
-	dp[0] = nums[0]
-	for i := 1; i < len(nums); i++ {
-		dp[i] = max(nums[i], dp[i-1]+nums[i])
-		maxSub = max(maxSub, dp[i])
-	}
-	return maxSub
-}
-
 // leetcode162 寻找峰值
 func findPeakElement(nums []int) int {
 	lhs, rhs := 0, len(nums)-1
@@ -839,7 +915,9 @@ func findPeakElementV2(nums []int) int {
 	lhs, rhs := 0, len(nums)-1
 	for lhs <= rhs {
 		mid := (lhs + rhs) / 2
-		if (mid == 0 && nums[mid] > nums[mid+1]) || (mid == len(nums)-1 && nums[mid] > nums[mid-1]) || (mid > 0 && mid < len(nums) && nums[mid] > nums[mid-1] && nums[mid] > nums[mid+1]) {
+		if (mid == 0 && nums[mid] > nums[mid+1]) ||
+			(mid == len(nums)-1 && nums[mid] > nums[mid-1]) ||
+			(mid > 0 && mid < len(nums) && nums[mid] > nums[mid-1] && nums[mid] > nums[mid+1]) {
 			return mid
 		} else if nums[mid] < nums[mid+1] {
 			lhs = mid + 1

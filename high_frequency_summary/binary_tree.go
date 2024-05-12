@@ -523,6 +523,27 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 	}
 }
 
+// leetcode236. 二叉树的最近公共祖先
+func lowestCommonAncestorII(root, p, q *TreeNode) *TreeNode {
+	if root == nil {
+		return nil
+	}
+	if root == p || root == q {
+		return root
+	}
+
+	l := lowestCommonAncestor(root.Left, p, q)
+	r := lowestCommonAncestor(root.Right, p, q)
+
+	if l != nil && r != nil {
+		return root
+	}
+	if l != nil {
+		return l
+	}
+	return r
+}
+
 // leetcode103. 二叉树的锯齿形层序遍历
 func zigzagLevelOrder(root *TreeNode) [][]int {
 	var ans [][]int
