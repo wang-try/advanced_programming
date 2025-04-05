@@ -279,36 +279,6 @@ func FlattenPrint(root *Node) {
 在一个循环链表中节点的值递增排序，请设计一个算法在该循环链表中插入节点，并保证插入节点之后的循环链表仍然是排序的。
 */
 
-func Insert(node *ListNode, val int) *ListNode {
-	insertNode := &ListNode{
-		Val:  val,
-		Next: nil,
-	}
-
-	if node == nil {
-		return insertNode
-	}
-	if node.Next == nil {
-		if node.Val < val {
-			node.Next = insertNode
-		} else {
-			insertNode.Next = node
-		}
-	}
-
-	cur := node
-	for {
-		if cur.Val <= val && cur.Next.Val >= val {
-			next := cur.Next
-			cur.Next = insertNode
-			insertNode.Next = next
-			return node
-		}
-		cur = cur.Next
-	}
-
-}
-
 func insert(aNode *Node, x int) *Node {
 	insertNode := &Node{
 		Val:  x,
