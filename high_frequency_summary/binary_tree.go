@@ -394,7 +394,9 @@ func maxPathSum(root *TreeNode) int {
 		}
 		lm := max(dfs(t.Left), 0)
 		rm := max(dfs(t.Right), 0)
+		// 更新答案
 		res = max(res, t.Val+lm+rm)
+		//返回节点的最大贡献值
 		return max(lm, rm) + t.Val
 	}
 	dfs(root)
